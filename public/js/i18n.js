@@ -952,7 +952,9 @@ const TRANSLATIONS = {
 };
 
 // Active language — default Italian
-let LANG = 'en';
+let LANG = (()=>{
+  try { return localStorage.getItem('supercatan_lang') || 'en'; } catch(e) { return 'en'; }
+})();
 function t(key, ...args) {
   const val = TRANSLATIONS[LANG]?.[key] ?? TRANSLATIONS['it'][key];
   if (typeof val === 'function') return val(...args);
@@ -961,6 +963,7 @@ function t(key, ...args) {
 function setLang(lang) {
   LANG = lang;
   document.documentElement.lang = lang;
+  try { localStorage.setItem('supercatan_lang', lang); } catch(e) {}
 }
 
 // Returns the display name for a resource, checking skin override first
