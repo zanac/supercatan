@@ -864,8 +864,8 @@ function renderActionPanel() {
 }
 
 function showSetupPanel() {
-  // Activate main panel (has Undo + End Turn buttons)
-  document.getElementById('mob-main-panel').classList.add('active');
+  // Don't activate mob-main-panel — build buttons not needed in setup.
+  // Undo + End Turn are in the header (mob-setup-header-btns), always visible.
 
   // Update phase label in header
   document.getElementById('mob-phase-label').textContent =
@@ -878,6 +878,9 @@ function showSetupPanel() {
   if (hdrBtns) hdrBtns.classList.remove('hidden');
   if (hdrUndo) hdrUndo.disabled = !state.undoAvailable;
   if (hdrEnd)  hdrEnd.disabled  = !state.pendingSetupEndTurn;
+
+  // Keep sheet collapsed if build mode is active
+  if (mobBuildMode) collapseSheet();
 
   // Update all button states (disables non-setup buttons)
   updateBuildButtons();
