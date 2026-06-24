@@ -717,14 +717,24 @@ function renderPhoneHost() {
 
 window.phOpenLink = async function(playerId) {
   const p = state?.players?.[playerId];
+  const btn = document.querySelector(`.ph-player-card:nth-child(${playerId+1}) .ph-link-btn`) ||
+              [...document.querySelectorAll('.ph-link-btn')][playerId];
   try {
     const r = await fetch('/api/generate-mobile-qr', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ pin: currentPin, playerIndex: playerId, playerName: p?.name, lang: LANG })
     });
     const d = await r.json();
-    window.open(d.mobileUrl, '_blank');
-  } catch(e) { alert('Errore: ' + e.message); }
+    const url = d.mobileUrl;
+    if (navigator.share) {
+      await navigator.share({ title: `SuperCatan — ${p?.name||''}`, url });
+    } else {
+      await navigator.clipboard.writeText(url);
+      if (btn) { const orig = btn.textContent; btn.textContent = '✅'; setTimeout(()=>btn.textContent=orig, 2000); }
+    }
+  } catch(e) {
+    if (e.name !== 'AbortError') alert('Errore: ' + e.message);
+  }
 };
 
 async function phShowQR(playerId) {
@@ -752,7 +762,7 @@ async function phShowQR(playerId) {
     const img = document.getElementById(`ph-qr-img-${playerId}`);
     const lnk = document.getElementById(`ph-qr-link-${playerId}`);
     if (img) img.src = d.qrDataUrl;
-    if (lnk) lnk.innerHTML = `<a href="${d.mobileUrl}" target="_blank" style="color:#80e080;word-break:break-all;font-size:.75rem">${d.mobileUrl}</a>`;
+    if (lnk) lnk.innerHTML = `<button onclick="(async()=>{try{if(navigator.share){await navigator.share({title:'SuperCatan',url:'${d.mobileUrl}'})}else{await navigator.clipboard.writeText('${d.mobileUrl}');this.textContent='✅ Copiato!';setTimeout(()=>this.textContent='📋 Copia link',2000)}}catch(e){if(e.name!=='AbortError')alert(e.message)}})()" style="margin-top:8px;padding:6px 14px;background:rgba(200,164,74,.2);border:1.5px solid #c8a44a;border-radius:8px;color:#f0c040;cursor:pointer;font-size:.85rem">📋 Copia link</button>`;
   } catch(e) {
     const lnk = document.getElementById(`ph-qr-link-${playerId}`);
     if (lnk) lnk.textContent = 'Errore QR: ' + e.message;
