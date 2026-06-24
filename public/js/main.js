@@ -285,11 +285,9 @@ function onMessage(data) { if (window._onMessageHook) window._onMessageHook(data
       currentPin = state.pin;
       history.replaceState({}, '', `?pin=${currentPin}`);
     }
-    // Load skin if changed — defer render until skin is ready to avoid flash
-    const skinChanged = state.skinId && state.skinId !== (SKIN?.id ?? 'standard');
-    if (skinChanged) {
-      loadSkinAssets(state.skinId); // loadSkinAssets calls render() itself when done
-      return;
+    // Load skin if changed
+    if (state.skinId && state.skinId !== (SKIN?.id ?? 'standard')) {
+      loadSkinAssets(state.skinId);
     }
     // Phone-host mode: never show game-screen, just update the host panel
     if (_phoneHostMode) {
@@ -3024,7 +3022,7 @@ async function loadSkinAssets(skinId) {
   if (skinId === 'standard') { SKIN = { id:'standard', hexImages:{}, robberImage:null, buildingImages:{}, roadImages:{}, resourceNames:{}, resourceEmojis:{}, labels:{}, vpCards:{}, vpImages:{}, devCards:{}, devImages:{} }; if (state) { renderBoard(); render(); } return; }
   try {
     const res = await fetch(`/skins/${skinId}/skin.json`);
-    if (!res.ok) { SKIN = { id:'standard', hexImages:{}, robberImage:null, buildingImages:{}, roadImages:{}, resourceNames:{}, resourceEmojis:{}, labels:{}, vpCards:{}, vpImages:{}, devCards:{}, devImages:{} }; if (state && !window.__SPECTATOR_MODE) { renderBoard(); render(); } return; }
+    if (!res.ok) { SKIN = { id:'standard', hexImages:{}, robberImage:null, buildingImages:{}, roadImages:{}, resourceNames:{}, resourceEmojis:{}, labels:{}, vpCards:{}, vpImages:{}, devCards:{}, devImages:{} }; return; }
     const meta = await res.json();
     const hexImages = {};
     if (meta.provides?.includes('hex') && meta.hex) {
@@ -3125,7 +3123,6 @@ async function loadSkinAssets(skinId) {
   } catch(e) {
     console.warn('Skin load failed:', e);
     SKIN = { id:'standard', hexImages:{}, robberImage:null, buildingImages:{}, roadImages:{}, resourceNames:{}, resourceEmojis:{}, labels:{}, vpCards:{}, vpImages:{}, devCards:{}, devImages:{} };
-    if (state && !window.__SPECTATOR_MODE) { renderBoard(); render(); }
   }
 }
 
