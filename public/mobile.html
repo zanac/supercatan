@@ -133,7 +133,7 @@
           <!-- State 3: confirm placement -->
           <div id="mob-setup-confirm-btns" style="display:none">
             <button class="mob-big-btn green" onclick="send({type:'SETUP_END_TURN'})">✔ <span data-t="mob_end_turn">Fine Turno</span></button>
-            <button class="mob-big-btn grey" style="margin-top:6px" onclick="send({type:'UNDO'})">↩ <span data-t="mob_undo">Undo</span></button>
+            <button class="mob-big-btn grey" style="margin-top:6px" onclick="send({type:'UNDO'});send({type:'UNDO'})">↩ <span data-t="mob_undo">Undo</span></button>
           </div>
         </div>
 
