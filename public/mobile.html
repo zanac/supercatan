@@ -287,6 +287,13 @@
   <script src="js/i18n.js"></script>
   <script src="js/mobile.js"></script>
   <script>
+    // Set language from URL immediately so error messages are localized
+    (function() {
+      const lang = new URLSearchParams(location.search).get('lang');
+      if (lang && ['en','it','fr','de'].includes(lang)) setLang(lang);
+    })();
+    // Apply translations to static HTML elements immediately on load
+    applyMobileTranslations();
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js')
         .then(r => console.log('SW registered'))
