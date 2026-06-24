@@ -197,7 +197,18 @@ function onMessage(data) { if (window._onMessageHook) window._onMessageHook(data
     hasLongestRoad: p.hasLongestRoad, hasLargestArmy: p.hasLargestArmy
   })) : null;
   const prevPoints       = state ? state.players.map(p => p.points) : null;
+  // Track setup step to reset buildMode on turn change
+  const prevSetupKey = state ? (state.phase + ':' + state.setupStep + ':' + state.waitingForRoad) : null;
   state = data.state;
+
+  // Reset buildMode when setup step/phase changes (new player's turn, or settlement→road transition)
+  if (!isFirstUpdate && prevSetupKey) {
+    const newSetupKey = state.phase + ':' + state.setupStep + ':' + state.waitingForRoad;
+    if (prevSetupKey !== newSetupKey && (state.phase==='setup1'||state.phase==='setup2')) {
+      buildMode = null;
+    }
+  }
+
 
   // Detect fresh dice roll BEFORE render()
   const isFreshRoll = !window.__SPECTATOR_MODE && !prevDiceRolled && state?.diceRolled && state?.diceValues?.[0];
@@ -873,11 +884,13 @@ function updateBoardCursor() {
   // In web-player mode only show cursor hints when it's my turn
   if (state.pendingRobber) {
     canvas.style.cursor = 'crosshair';
-  } else if (isSetup && state.waitingForRoad && buildMode!=='settlement' && buildMode!=='city') {
+  } else if (isSetup && state.waitingForRoad && buildMode==='road') {
     canvas.style.cursor = 'cell';
-  } else if (isSetup || buildMode==='settlement' || buildMode==='city') {
+  } else if (isSetup && !state.waitingForRoad && buildMode==='settlement') {
     canvas.style.cursor = 'cell';
-  } else if (buildMode==='road') {
+  } else if (!isSetup && (buildMode==='settlement' || buildMode==='city')) {
+    canvas.style.cursor = 'cell';
+  } else if (!isSetup && buildMode==='road') {
     canvas.style.cursor = 'cell';
   } else {
     canvas.style.cursor = 'default';
@@ -1279,9 +1292,15 @@ function renderHUD() {
   const robberB = document.getElementById('robber-banner');
   if (state.phase==='setup1'||state.phase==='setup2') {
     setupB.classList.remove('hidden');
-    setupB.textContent = state.waitingForRoad
-      ? `${player.name}: ${skinLabel('road', t('phase_place_road'))}`
-      : `${player.name}: ${skinLabel('settlement', t('phase_place_sett'))}`;
+    if (state.waitingForRoad) {
+      setupB.textContent = buildMode==='road'
+        ? `${player.name}: ${skinLabel('road', t('phase_place_road'))}`
+        : `${player.name}: ▶ ${t('setup_press_road')||'press'} [${skinLabel('road', t('btn_road'))}]`;
+    } else {
+      setupB.textContent = buildMode==='settlement'
+        ? `${player.name}: ${skinLabel('settlement', t('phase_place_sett'))}`
+        : `${player.name}: ▶ ${t('setup_press_sett')||'press'} [${skinLabel('settlement', t('btn_settlement'))}]`;
+    }
   } else setupB.classList.add('hidden');
   robberB.classList.toggle('hidden', !state.pendingRobber);
   if (state.pendingRobber) robberB.textContent = skinLabel('robber', t('banner_robber'));
@@ -1431,7 +1450,9 @@ function updateButtonStates() {
   const hasRoadRes  = rbuild || (res.wood>=1 && res.brick>=1);
   const hasRoadSpot = canAct && clientHasValidRoadPlacement(pid);
   const btnRoad = document.getElementById('btn-road');
-  btnRoad.disabled = !canAct && !rbuild;
+  // During setup: enable road button only when it's my turn and waitingForRoad
+  const setupRoadOk = isSetup && isMyWebTurn && state.waitingForRoad && !state.pendingSetupEndTurn;
+  btnRoad.disabled = !setupRoadOk && !canAct && !rbuild;
   btnRoad.classList.toggle('cant-afford', (canAct||rbuild) && !(hasRoadRes && hasRoadSpot));
 
   // ── Settlement ──
@@ -1439,7 +1460,9 @@ function updateButtonStates() {
   const hasSettRes  = res.wood>=1 && res.brick>=1 && res.sheep>=1 && res.wheat>=1;
   const hasSettSpot = clientHasValidSettlementPlacement(pid);
   const btnSett = document.getElementById('btn-settlement');
-  btnSett.disabled = !canAct || !hasSettSpot;  // disable if no valid spot at all
+  // During setup: enable settlement button only when it's my turn and !waitingForRoad
+  const setupSettOk = isSetup && isMyWebTurn && !state.waitingForRoad && !state.pendingSetupEndTurn;
+  btnSett.disabled = !setupSettOk && (!canAct || !hasSettSpot);
   btnSett.classList.toggle('cant-afford', canAct && hasSettSpot && !hasSettRes);
 
   // ── City ──
@@ -1556,9 +1579,9 @@ canvas.addEventListener('mousemove', e => {
 
   if (state.pendingRobber) {
     canvas.style.cursor = findClickedHex(mx,my) ? 'crosshair' : 'default';
-  } else if (buildMode==='road' || (isSetup && state.waitingForRoad)) {
+  } else if (buildMode==='road' || (isSetup && state.waitingForRoad && buildMode==='road')) {
     canvas.style.cursor = findClickedEdge(mx,my) ? 'pointer' : 'default';
-  } else if (buildMode==='settlement' || buildMode==='city' || (isSetup && !state.waitingForRoad)) {
+  } else if (buildMode==='settlement' || buildMode==='city' || (isSetup && !state.waitingForRoad && buildMode==='settlement')) {
     canvas.style.cursor = findClickedVertex(mx,my) ? 'pointer' : 'default';
   } else {
     canvas.style.cursor = 'default';
@@ -1602,8 +1625,12 @@ function onCanvasClick(e) {
   if (state.phase==='setup1'||state.phase==='setup2') {
     // Block if waiting for End Turn confirmation
     if (state.pendingSetupEndTurn) return;
-    if (state.waitingForRoad) { const ed=findClickedEdge(mx,my); if(ed) send({type:'PLACE_INITIAL_ROAD',edgeId:ed.id}); }
-    else                      { const vt=findClickedVertex(mx,my); if(vt) send({type:'PLACE_INITIAL_SETTLEMENT',vertexId:vt.id}); }
+    // Require explicit button press before placing — no auto-placement on canvas click
+    if (state.waitingForRoad) {
+      if (buildMode==='road') { const ed=findClickedEdge(mx,my); if(ed) { send({type:'PLACE_INITIAL_ROAD',edgeId:ed.id}); buildMode=null; } }
+    } else {
+      if (buildMode==='settlement') { const vt=findClickedVertex(mx,my); if(vt) { send({type:'PLACE_INITIAL_SETTLEMENT',vertexId:vt.id}); buildMode=null; } }
+    }
     return;
   }
   if (buildMode==='road')       { const ed=findClickedEdge(mx,my);   if(ed){ send({type:'BUILD_ROAD',edgeId:ed.id});       if(state.pendingRoadBuilding<=1) buildMode=null; } }

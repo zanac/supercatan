@@ -652,9 +652,9 @@ function render(prevRolled) {
   const isMyTurn = curIdx === MY_PLAYER_ID;
 
   // Reset build mode when phase transitions (setup → main, or turn changes)
-  const phaseKey = state.phase + ':' + curIdx;
+  const phaseKey = state.phase + ':' + curIdx + ':' + state.waitingForRoad;
   if (phaseKey !== lastPhase) {
-    if (!isSetup && mobBuildMode && (mobBuildMode.endsWith('_initial') || mobBuildMode === 'robber')) {
+    if (mobBuildMode && (mobBuildMode.endsWith('_initial') || mobBuildMode === 'robber')) {
       setMobBuildMode(null);
     }
     lastPhase = phaseKey;
@@ -879,21 +879,31 @@ function showSetupPanel() {
   const etBtn = document.getElementById('mob-btn-end-turn');
   if (etBtn) etBtn.disabled = !state.pendingSetupEndTurn;
 
-  // Set build mode for tap-on-board — without collapsing sheet
-  const autoMode = state.pendingSetupEndTurn ? null
-    : state.waitingForRoad ? 'road_initial' : 'settlement_initial';
-  mobBuildMode = autoMode; // set directly, bypass setMobBuildMode to avoid collapse
+  // Don't auto-set build mode — user must press the button explicitly
+  // Only clear build mode if it's no longer valid for the current sub-step
+  if (!state.pendingSetupEndTurn) {
+    if (state.waitingForRoad && mobBuildMode === 'settlement_initial') mobBuildMode = null;
+    if (!state.waitingForRoad && mobBuildMode === 'road_initial') mobBuildMode = null;
+  } else {
+    mobBuildMode = null;
+  }
 
-  // Show banner manually
+  // Show banner: if mode active → placement hint; otherwise → press button hint
   const banner = document.getElementById('mob-build-banner');
-  if (autoMode) {
-    const label = autoMode === 'road_initial'
-      ? (skinLabel('road', t('mob_build_label_road') || 'Tap an edge for the road'))
-      : (skinLabel('settlement', t('mob_build_label_settlement') || 'Tap a vertex for the settlement'));
-    banner.textContent = label;
+  if (state.pendingSetupEndTurn) {
+    banner.classList.add('hidden');
+  } else if (mobBuildMode === 'road_initial') {
+    banner.textContent = skinLabel('road', t('mob_build_label_road') || 'Tap an edge for the road');
+    banner.classList.remove('hidden');
+  } else if (mobBuildMode === 'settlement_initial') {
+    banner.textContent = skinLabel('settlement', t('mob_build_label_settlement') || 'Tap a vertex for the settlement');
+    banner.classList.remove('hidden');
+  } else if (state.waitingForRoad) {
+    banner.textContent = `▶ ${t('setup_press_road') || 'Press'} [${skinLabel('road', t('btn_road'))}]`;
     banner.classList.remove('hidden');
   } else {
-    banner.classList.add('hidden');
+    banner.textContent = `▶ ${t('setup_press_sett') || 'Press'} [${skinLabel('settlement', t('btn_settlement'))}]`;
+    banner.classList.remove('hidden');
   }
 
   renderBoardCanvas();
