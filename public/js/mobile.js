@@ -141,7 +141,7 @@ async function loadMobileSkin(skinId) {
       const drawn = state.lastDrawnCard;
       if (drawn.playerId === MY_PLAYER_ID) showMobDevCardPopup(drawn);
     }
-  } catch(e) { SKIN = { id:'standard', hexImages:{}, robberImage:null, buildingImages:{}, roadImages:{}, resourceNames:{}, resourceEmojis:{}, labels:{}, vpCards:{}, vpImages:{}, devCards:{}, devImages:{} }; }
+  } catch(e) { SKIN = { id:'standard', hexImages:{}, robberImage:null, buildingImages:{}, roadImages:{}, resourceNames:{}, resourceEmojis:{}, labels:{}, vpCards:{}, vpImages:{}, devCards:{}, devImages:{} }; if (state) render(); }
 }
 
 function skinColorKey(hexColor) {
@@ -351,6 +351,9 @@ function onMessage(data) {
   // Load skin if changed
   if (state?.skinId && state.skinId !== (SKIN?.id ?? 'standard')) {
     _skinLoadPromise = loadMobileSkin(state.skinId);
+    // Wait for skin before rendering to avoid flash of unskinned content
+    _skinLoadPromise.then(() => render(prevRolled));
+    return;
   }
   render(prevRolled);
 }
