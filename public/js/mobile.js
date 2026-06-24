@@ -829,6 +829,8 @@ function renderActionPanel() {
   document.getElementById('mob-robber-panel')?.classList.remove('active');
   document.getElementById('mob-steal-panel')?.classList.remove('active');
   expandSheet(); // restore sheet (collapsed during robber mode)
+  // Hide setup header buttons when not in setup
+  document.getElementById('mob-setup-header-btns')?.classList.add('hidden');
   if (isSetup) { showSetupPanel(); return; }
   if (!state.diceRolled) {
     document.getElementById('mob-roll-panel').classList.add('active');
@@ -867,6 +869,14 @@ function showSetupPanel() {
   // Update phase label in header
   document.getElementById('mob-phase-label').textContent =
     state.waitingForRoad ? skinLabel('road', t('phase_place_road')) : skinLabel('settlement', t('phase_place_sett'));
+
+  // Show header undo/end-turn buttons (visible even when sheet is collapsed)
+  const hdrBtns = document.getElementById('mob-setup-header-btns');
+  const hdrUndo = document.getElementById('mob-hdr-undo');
+  const hdrEnd  = document.getElementById('mob-hdr-end-turn');
+  if (hdrBtns) hdrBtns.classList.remove('hidden');
+  if (hdrUndo) hdrUndo.disabled = !state.undoAvailable;
+  if (hdrEnd)  hdrEnd.disabled  = !state.pendingSetupEndTurn;
 
   // Update all button states (disables non-setup buttons)
   updateBuildButtons();
@@ -1073,8 +1083,7 @@ function setMobBuildMode(mode) {
   if(mode){
     banner.textContent=labels[mode]||'';
     banner.classList.remove('hidden');
-    // Don't collapse during setup — we need the panel visible for undo/end-turn
-    if (mode !== 'road_initial' && mode !== 'settlement_initial') collapseSheet();
+    collapseSheet();
   } else {
     banner.classList.add('hidden');
     expandSheet();

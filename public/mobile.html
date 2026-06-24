@@ -107,6 +107,10 @@
           <span id="mob-die1" class="mob-die">?</span>
           <span id="mob-die2" class="mob-die">?</span>
         </div>
+        <div id="mob-setup-header-btns" class="hidden">
+          <button id="mob-hdr-undo"     class="mob-hdr-btn" onclick="send({type:'UNDO'})" disabled>↩</button>
+          <button id="mob-hdr-end-turn" class="mob-hdr-btn end" onclick="send({type:'SETUP_END_TURN'})" disabled>✔</button>
+        </div>
       </div>
 
       <!-- My resources (compact row) -->
