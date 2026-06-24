@@ -38,6 +38,8 @@ function getDevCardEmoji(card, subtype) {
   return map[card] || '🃏';
 }
 
+let _skinLoadPromise = Promise.resolve();
+
 async function loadMobileSkin(skinId) {
   if (!skinId || skinId === 'standard') { SKIN = { id:'standard', hexImages:{}, robberImage:null, buildingImages:{}, roadImages:{}, resourceNames:{}, resourceEmojis:{}, labels:{}, vpCards:{}, vpImages:{}, devCards:{}, devImages:{} }; return; }
   if (SKIN?.id === skinId) return; // already loaded
@@ -348,13 +350,15 @@ function onMessage(data) {
 
   // Load skin if changed
   if (state?.skinId && state.skinId !== (SKIN?.id ?? 'standard')) {
-    loadMobileSkin(state.skinId);
+    _skinLoadPromise = loadMobileSkin(state.skinId);
   }
   render(prevRolled);
 }
 
 // ── Screens ───────────────────────────────────────────────────────
-function showMobGuide() {
+async function showMobGuide() {
+  // Wait for skin to finish loading before rendering
+  await _skinLoadPromise;
   const popup = document.getElementById('mob-guide-popup');
   const content = document.getElementById('mob-guide-content');
   const title = document.getElementById('mob-guide-title');
