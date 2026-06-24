@@ -864,14 +864,12 @@ function renderActionPanel() {
 }
 
 function showSetupPanel() {
-  // Don't activate mob-main-panel — build buttons not needed in setup.
-  // Undo + End Turn are in the header (mob-setup-header-btns), always visible.
-
-  // Update phase label in header
+  // ── Header: phase label + undo/endturn buttons ──
   document.getElementById('mob-phase-label').textContent =
-    state.waitingForRoad ? skinLabel('road', t('phase_place_road')) : skinLabel('settlement', t('phase_place_sett'));
+    state.waitingForRoad
+      ? skinLabel('road', t('phase_place_road'))
+      : skinLabel('settlement', t('phase_place_sett'));
 
-  // Show header undo/end-turn buttons (visible even when sheet is collapsed)
   const hdrBtns = document.getElementById('mob-setup-header-btns');
   const hdrUndo = document.getElementById('mob-hdr-undo');
   const hdrEnd  = document.getElementById('mob-hdr-end-turn');
@@ -879,46 +877,43 @@ function showSetupPanel() {
   if (hdrUndo) hdrUndo.disabled = !state.undoAvailable;
   if (hdrEnd)  hdrEnd.disabled  = !state.pendingSetupEndTurn;
 
-  // Keep sheet collapsed if build mode is active
-  if (mobBuildMode) collapseSheet();
+  // ── Clear stale build mode if sub-step changed ──
+  if (state.waitingForRoad  && mobBuildMode === 'settlement_initial') mobBuildMode = null;
+  if (!state.waitingForRoad && mobBuildMode === 'road_initial')       mobBuildMode = null;
 
-  // Update all button states (disables non-setup buttons)
-  updateBuildButtons();
-
-  // Undo button
-  const undoEl = document.getElementById('mob-btn-undo');
-  if (undoEl) undoEl.disabled = !state.undoAvailable;
-
-  // End Turn: only when road placed and waiting for confirmation
-  const etBtn = document.getElementById('mob-btn-end-turn');
-  if (etBtn) etBtn.disabled = !state.pendingSetupEndTurn;
-
-  // Don't auto-set build mode — user must press the button explicitly
-  // Only clear build mode if it's no longer valid for the current sub-step
-  if (!state.pendingSetupEndTurn) {
-    if (state.waitingForRoad && mobBuildMode === 'settlement_initial') mobBuildMode = null;
-    if (!state.waitingForRoad && mobBuildMode === 'road_initial') mobBuildMode = null;
-  } else {
-    mobBuildMode = null;
-    expandSheet(); // show sheet so user sees the ✔ end-turn button
-  }
-
-  // Show banner: if mode active → placement hint; otherwise → same placement hint (simpler)
+  // ── Sheet + banner ──
   const banner = document.getElementById('mob-build-banner');
+
   if (state.pendingSetupEndTurn) {
+    // Road placed — expand sheet, show end-turn confirmation
+    mobBuildMode = null;
+    expandSheet();
     banner.classList.add('hidden');
-  } else if (mobBuildMode === 'road_initial') {
-    banner.textContent = skinLabel('road', t('mob_build_label_road') || 'Tap an edge for the road');
-    banner.classList.remove('hidden');
-  } else if (mobBuildMode === 'settlement_initial') {
-    banner.textContent = skinLabel('settlement', t('mob_build_label_settlement') || 'Tap a vertex for the settlement');
-    banner.classList.remove('hidden');
-  } else {
-    const label = state.waitingForRoad
-      ? skinLabel('road', t('mob_build_label_road') || 'Tap an edge for the road')
+    document.getElementById('mob-setup-panel').classList.add('active');
+
+  } else if (mobBuildMode) {
+    // User pressed a button — board large, show placement hint
+    collapseSheet();
+    banner.textContent = mobBuildMode === 'road_initial'
+      ? skinLabel('road',       t('mob_build_label_road')       || 'Tap an edge for the road')
       : skinLabel('settlement', t('mob_build_label_settlement') || 'Tap a vertex for the settlement');
-    banner.textContent = label;
     banner.classList.remove('hidden');
+
+  } else {
+    // Waiting for button press — sheet open, show road/settlement buttons
+    expandSheet();
+    banner.classList.add('hidden');
+    document.getElementById('mob-setup-panel').classList.add('active');
+    // Update button labels with skin names and enable only the relevant one
+    const settBtn = document.getElementById('mob-setup-btn-settlement');
+    const roadBtn = document.getElementById('mob-setup-btn-road');
+    const settLbl = document.getElementById('mob-setup-sett-label');
+    const roadLbl = document.getElementById('mob-setup-road-label');
+    if (settLbl) settLbl.textContent = skinLabel('settlement', t('btn_settlement') || 'Villaggio');
+    if (roadLbl) roadLbl.textContent = skinLabel('road',       t('btn_road')       || 'Strada');
+    if (settBtn) settBtn.disabled = state.waitingForRoad;   // disabled when road phase
+    if (roadBtn) roadBtn.disabled = !state.waitingForRoad;  // disabled when settlement phase
+    updateBuildButtons();
   }
 
   renderBoardCanvas();
@@ -1119,6 +1114,19 @@ function toggleBuildMode(mode) {
   ['road','settlement','city'].forEach(m=>{
     document.getElementById(`mob-btn-${m}`)?.classList.toggle('active-mode', mobBuildMode===m);
   });
+}
+
+function mobSetupPressSettlement() {
+  if (state?.phase!=='setup1'&&state?.phase!=='setup2') return;
+  if (state?.waitingForRoad || state?.pendingSetupEndTurn) return;
+  mobBuildMode = 'settlement_initial';
+  renderActionPanel();
+}
+function mobSetupPressRoad() {
+  if (state?.phase!=='setup1'&&state?.phase!=='setup2') return;
+  if (!state?.waitingForRoad || state?.pendingSetupEndTurn) return;
+  mobBuildMode = 'road_initial';
+  renderActionPanel();
 }
 
 document.getElementById('mob-btn-road').addEventListener('click',()=>{

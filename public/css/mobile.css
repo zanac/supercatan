@@ -170,6 +170,9 @@ html, body {
 .mob-big-btn.green  { background:#2a7a2a; color:#fff; }
 .mob-big-btn.red    { background:#7a2020; color:#fff; }
 .mob-big-btn.grey   { background:rgba(255,255,255,.1); color:#f0e6c8; }
+.mob-big-btn:disabled { opacity:.35; pointer-events:none; }
+.mob-setup-btns { display:flex; gap:10px; padding:8px 0; }
+.mob-setup-btns .mob-big-btn { flex:1; margin-top:0; background:rgba(200,164,74,.15); color:#f0c040; border:1.5px solid rgba(200,164,74,.4); }
 .mob-big-btn:disabled { opacity:.3; cursor:not-allowed; }
 
 /* ── Discard ── */

@@ -121,12 +121,14 @@
 
         <!-- Setup instruction -->
         <div id="mob-setup-panel" class="mob-panel">
-          <p id="mob-setup-instruction" class="mob-instruction"></p>
-          <p class="mob-hint" data-t="setup_place_sett_hint">Tap the board above to place</p>
-          <button id="mob-setup-undo-btn" class="mob-big-btn"
-            style="display:none;margin-top:10px;opacity:.85;background:rgba(60,60,80,.7);border-color:rgba(180,180,200,.4)"
-            onclick="send({type:'UNDO'})">↩ Undo</button>
-
+          <div class="mob-setup-btns">
+            <button id="mob-setup-btn-settlement" class="mob-big-btn" onclick="mobSetupPressSettlement()">
+              🏠 <span id="mob-setup-sett-label">Villaggio</span>
+            </button>
+            <button id="mob-setup-btn-road" class="mob-big-btn" onclick="mobSetupPressRoad()">
+              🛤 <span id="mob-setup-road-label">Strada</span>
+            </button>
+          </div>
         </div>
 
         <!-- Roll dice -->
