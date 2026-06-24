@@ -3,7 +3,7 @@
 // ===================================================================
 
 const RES_EMOJI  = { wood:'🪵', brick:'🧱', sheep:'🐑', wheat:'🌾', ore:'🪨', desert:'🏜' };
-let SKIN = null; // loaded skin for mobile
+window.SKIN = null; // loaded skin for mobile — must be global for i18n.js
 
 const DEV_CARD_DESC = {
   knight:       () => skinLabel('devcard_knight_desc', t('devcard_knight_desc')  || 'Sposta il brigante e ruba una risorsa'),
