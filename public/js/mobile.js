@@ -828,7 +828,8 @@ function renderActionPanel() {
   // Remove panels BEFORE expanding sheet to prevent touch interception
   document.getElementById('mob-robber-panel')?.classList.remove('active');
   document.getElementById('mob-steal-panel')?.classList.remove('active');
-  expandSheet(); // restore sheet (collapsed during robber mode)
+  // Don't expand sheet during setup if build mode is active (board should stay large)
+  if (!isSetup || !mobBuildMode) expandSheet();
   // Hide setup header buttons when not in setup
   document.getElementById('mob-setup-header-btns')?.classList.add('hidden');
   if (isSetup) { showSetupPanel(); return; }
@@ -896,6 +897,7 @@ function showSetupPanel() {
     if (!state.waitingForRoad && mobBuildMode === 'road_initial') mobBuildMode = null;
   } else {
     mobBuildMode = null;
+    expandSheet(); // show sheet so user sees the ✔ end-turn button
   }
 
   // Show banner: if mode active → placement hint; otherwise → same placement hint (simpler)
