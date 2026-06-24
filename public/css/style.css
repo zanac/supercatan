@@ -1554,6 +1554,15 @@ body.ui-xlarge .medal-badge, body.ui-xlarge .knight-count { font-size: 1.3rem; p
   text-decoration: none;
   display: inline-block;
 }
+.ph-play-btn {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(100,140,255,.4);
+  background: rgba(100,140,255,.15);
+  color: #99aaff;
+  font-size: .85rem;
+  cursor: pointer;
+}
 #ph-status {
   text-align: center;
   font-size: .9rem;

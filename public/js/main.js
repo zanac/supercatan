@@ -704,6 +704,7 @@ function renderPhoneHost() {
       <div class="ph-player-btns">
         <button class="ph-qr-btn" onclick="phShowQR(${p.id})">QR</button>
         <button class="ph-link-btn" onclick="phOpenLink(${p.id})">🔗</button>
+        <button class="ph-play-btn" onclick="phPlayAs(${p.id})">▶</button>
       </div>`;
     container.appendChild(card);
   });
@@ -735,6 +736,18 @@ window.phOpenLink = async function(playerId) {
   } catch(e) {
     if (e.name !== 'AbortError') alert('Errore: ' + e.message);
   }
+};
+
+window.phPlayAs = async function(playerId) {
+  const p = state?.players?.[playerId];
+  try {
+    const r = await fetch('/api/generate-mobile-qr', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ pin: currentPin, playerIndex: playerId, playerName: p?.name, lang: LANG })
+    });
+    const d = await r.json();
+    window.location.href = d.mobileUrl;
+  } catch(e) { alert('Errore: ' + e.message); }
 };
 
 async function phShowQR(playerId) {
