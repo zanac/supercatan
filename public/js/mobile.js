@@ -890,10 +890,14 @@ function showSetupPanel() {
     expandSheet();
     banner.classList.add('hidden');
     document.getElementById('mob-setup-panel').classList.add('active');
+    document.getElementById('mob-setup-place-btns').style.display   = 'none';
+    document.getElementById('mob-setup-confirm-btns').style.display = '';
 
   } else if (mobBuildMode) {
     // User pressed a button — board large, show placement hint
     collapseSheet();
+    document.getElementById('mob-setup-place-btns').style.display   = 'flex';
+    document.getElementById('mob-setup-confirm-btns').style.display = 'none';
     banner.textContent = mobBuildMode === 'road_initial'
       ? skinLabel('road',       t('mob_build_label_road')       || 'Tap an edge for the road')
       : skinLabel('settlement', t('mob_build_label_settlement') || 'Tap a vertex for the settlement');
@@ -904,15 +908,16 @@ function showSetupPanel() {
     expandSheet();
     banner.classList.add('hidden');
     document.getElementById('mob-setup-panel').classList.add('active');
-    // Update button labels with skin names and enable only the relevant one
+    document.getElementById('mob-setup-place-btns').style.display   = 'flex';
+    document.getElementById('mob-setup-confirm-btns').style.display = 'none';
     const settBtn = document.getElementById('mob-setup-btn-settlement');
     const roadBtn = document.getElementById('mob-setup-btn-road');
     const settLbl = document.getElementById('mob-setup-sett-label');
     const roadLbl = document.getElementById('mob-setup-road-label');
     if (settLbl) settLbl.textContent = skinLabel('settlement', t('btn_settlement') || 'Villaggio');
     if (roadLbl) roadLbl.textContent = skinLabel('road',       t('btn_road')       || 'Strada');
-    if (settBtn) settBtn.disabled = state.waitingForRoad;   // disabled when road phase
-    if (roadBtn) roadBtn.disabled = !state.waitingForRoad;  // disabled when settlement phase
+    if (settBtn) settBtn.disabled = state.waitingForRoad;
+    if (roadBtn) roadBtn.disabled = !state.waitingForRoad;
     updateBuildButtons();
   }
 

@@ -121,13 +121,19 @@
 
         <!-- Setup instruction -->
         <div id="mob-setup-panel" class="mob-panel">
-          <div class="mob-setup-btns">
+          <!-- State 1+2: place settlement or road -->
+          <div id="mob-setup-place-btns" class="mob-setup-btns">
             <button id="mob-setup-btn-settlement" class="mob-big-btn" onclick="mobSetupPressSettlement()">
               🏠 <span id="mob-setup-sett-label">Villaggio</span>
             </button>
             <button id="mob-setup-btn-road" class="mob-big-btn" onclick="mobSetupPressRoad()">
               🛤 <span id="mob-setup-road-label">Strada</span>
             </button>
+          </div>
+          <!-- State 3: confirm placement -->
+          <div id="mob-setup-confirm-btns" style="display:none">
+            <button class="mob-big-btn green" onclick="send({type:'SETUP_END_TURN'})">✔ <span data-t="mob_end_turn">Fine Turno</span></button>
+            <button class="mob-big-btn grey" style="margin-top:6px" onclick="send({type:'UNDO'})">↩ <span data-t="mob_undo">Undo</span></button>
           </div>
         </div>
 
