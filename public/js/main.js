@@ -1214,6 +1214,10 @@ function render() {
     }
   }
   if (_phoneHostMode) { renderPhoneHost(); return; }
+  // Auto-open actions drawer during setup so buttons are immediately visible
+  if (state && (state.phase==='setup1'||state.phase==='setup2') && !drawerState.actions) {
+    toggleDrawer('actions');
+  }
   calcBoardTransform();
   renderBoard();
   renderPlayers();
@@ -1292,15 +1296,9 @@ function renderHUD() {
   const robberB = document.getElementById('robber-banner');
   if (state.phase==='setup1'||state.phase==='setup2') {
     setupB.classList.remove('hidden');
-    if (state.waitingForRoad) {
-      setupB.textContent = buildMode==='road'
-        ? `${player.name}: ${skinLabel('road', t('phase_place_road'))}`
-        : `${player.name}: ▶ ${t('setup_press_road')||'press'} [${skinLabel('road', t('btn_road'))}]`;
-    } else {
-      setupB.textContent = buildMode==='settlement'
-        ? `${player.name}: ${skinLabel('settlement', t('phase_place_sett'))}`
-        : `${player.name}: ▶ ${t('setup_press_sett')||'press'} [${skinLabel('settlement', t('btn_settlement'))}]`;
-    }
+    setupB.textContent = state.waitingForRoad
+      ? `${player.name}: ${skinLabel('road', t('phase_place_road'))}`
+      : `${player.name}: ${skinLabel('settlement', t('phase_place_sett'))}`;
   } else setupB.classList.add('hidden');
   robberB.classList.toggle('hidden', !state.pendingRobber);
   if (state.pendingRobber) robberB.textContent = skinLabel('robber', t('banner_robber'));

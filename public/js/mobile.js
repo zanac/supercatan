@@ -888,7 +888,7 @@ function showSetupPanel() {
     mobBuildMode = null;
   }
 
-  // Show banner: if mode active → placement hint; otherwise → press button hint
+  // Show banner: if mode active → placement hint; otherwise → same placement hint (simpler)
   const banner = document.getElementById('mob-build-banner');
   if (state.pendingSetupEndTurn) {
     banner.classList.add('hidden');
@@ -898,11 +898,11 @@ function showSetupPanel() {
   } else if (mobBuildMode === 'settlement_initial') {
     banner.textContent = skinLabel('settlement', t('mob_build_label_settlement') || 'Tap a vertex for the settlement');
     banner.classList.remove('hidden');
-  } else if (state.waitingForRoad) {
-    banner.textContent = `▶ ${t('setup_press_road') || 'Press'} [${skinLabel('road', t('btn_road'))}]`;
-    banner.classList.remove('hidden');
   } else {
-    banner.textContent = `▶ ${t('setup_press_sett') || 'Press'} [${skinLabel('settlement', t('btn_settlement'))}]`;
+    const label = state.waitingForRoad
+      ? skinLabel('road', t('mob_build_label_road') || 'Tap an edge for the road')
+      : skinLabel('settlement', t('mob_build_label_settlement') || 'Tap a vertex for the settlement');
+    banner.textContent = label;
     banner.classList.remove('hidden');
   }
 
