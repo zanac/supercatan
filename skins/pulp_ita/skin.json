@@ -47,10 +47,10 @@
   },
   "resource_emojis": {
     "ore": "💰",
-    "brick": "🔫",
+    "brick": "💣",
     "wheat": "💋",
-    "wood": "🤵",
-    "sheep": "💊"
+    "wood": "👮‍♂️",
+    "sheep": "💉"
   },
   "labels": {
     "road": "Via di Fuga",
@@ -87,7 +87,7 @@
     "mob_build_label_city": "Tocca una Piazza di Spaccio per upgradare a Covo Criminale",
     "mob_build_label_robber": "Tocca un esagono per muovere Marsellus Wallace",
     "mob_steal_instruction": "🕴 Ruba una risorsa",
-    "devname_knight": "🔫 Sicario",
+    "devname_knight": "💣 Sicario",
     "devname_monopoly": "💰 Pizzo",
     "devname_yop": "💎 Rapina",
     "devname_road_build": "🧹 Signor Wolf",
@@ -95,7 +95,7 @@
     "yop_title": "💎 Rapina",
     "monopoly_title": "💰 Pizzo",
     "longest_road_emoji": "🚗",
-    "largest_army_emoji": "🔫"
+    "largest_army_emoji": "💣"
   },
   "vp_cards": {
     "chapel": {
