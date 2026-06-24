@@ -366,6 +366,87 @@
         .then(() => console.log('SW registered'))
         .catch(e => console.warn('SW error', e));
     }
+
+    // ── PWA Install Prompt ─────────────────────────────────────────
+    (function() {
+      // Don't show if already installed or previously dismissed
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+      if (isStandalone) return;
+      try { if (localStorage.getItem('pwa_dismissed')) return; } catch(e) {}
+
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      const isAndroidChrome = /Android/.test(navigator.userAgent) && /Chrome/.test(navigator.userAgent);
+
+      function showBanner(mode) {
+        const banner = document.createElement('div');
+        banner.id = 'pwa-banner';
+        banner.style.cssText = `
+          position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+          background:#1a1f35; border:1.5px solid rgba(200,164,74,.5);
+          border-radius:16px; padding:14px 18px; z-index:99999;
+          display:flex; align-items:center; gap:12px;
+          box-shadow:0 4px 24px rgba(0,0,0,.6); max-width:340px; width:90%;
+          font-family:Georgia,serif; animation: pwa-slide-up .3s ease;
+        `;
+        const style = document.createElement('style');
+        style.textContent = `@keyframes pwa-slide-up { from { opacity:0; transform:translateX(-50%) translateY(20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }`;
+        document.head.appendChild(style);
+
+        const icon = document.createElement('span');
+        icon.textContent = '📲';
+        icon.style.fontSize = '1.8rem';
+
+        const text = document.createElement('div');
+        text.style.cssText = 'flex:1; color:#e0d0a0; font-size:.85rem; line-height:1.4';
+
+        const close = document.createElement('button');
+        close.textContent = '✕';
+        close.style.cssText = 'background:none; border:none; color:#888; font-size:1rem; cursor:pointer; padding:4px; flex-shrink:0;';
+        close.onclick = () => {
+          banner.remove();
+          try { localStorage.setItem('pwa_dismissed', '1'); } catch(e) {}
+        };
+
+        if (mode === 'ios') {
+          text.innerHTML = `<strong style="color:#f0c040">${t('pwa_install_title')||'Installa l\'app'}</strong><br>${t('pwa_install_ios')||'Tocca <strong>⎋ Condividi</strong> poi <strong>Aggiungi a schermata Home</strong>'}`;
+        } else if (mode === 'android') {
+          text.innerHTML = `<strong style="color:#f0c040">${t('pwa_install_title')||'Installa l\'app'}</strong><br>${t('pwa_install_android')||'Per una migliore esperienza, installa SuperCatan sul tuo dispositivo'}`;
+
+          const installBtn = document.createElement('button');
+          installBtn.textContent = t('pwa_install_btn') || '📲 Installa';
+          installBtn.style.cssText = `
+            display:block; width:100%; margin-top:10px; padding:8px;
+            background:rgba(200,164,74,.2); border:1.5px solid rgba(200,164,74,.5);
+            border-radius:10px; color:#f0c040; font-size:.9rem;
+            font-family:Georgia,serif; cursor:pointer;
+          `;
+          installBtn.onclick = () => {
+            if (window._pwaPrompt) {
+              window._pwaPrompt.prompt();
+              window._pwaPrompt.userChoice.then(() => { banner.remove(); });
+            }
+          };
+          text.appendChild(installBtn);
+        }
+
+        banner.appendChild(icon);
+        banner.appendChild(text);
+        banner.appendChild(close);
+        document.body.appendChild(banner);
+      }
+
+      if (isIOS) {
+        // Show iOS instructions after 2s
+        setTimeout(() => showBanner('ios'), 2000);
+      } else if (isAndroidChrome) {
+        // Wait for beforeinstallprompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          window._pwaPrompt = e;
+          setTimeout(() => showBanner('android'), 2000);
+        });
+      }
+    })();
   </script>
 </body>
 </html>
