@@ -99,33 +99,33 @@
   },
   "vp_cards": {
     "chapel": {
-      "name": "🕰️ L'Orologio d'Oro",
+      "name": "🕰️ The Gold Watch",
       "emoji": "🕰️",
-      "desc": "Appartenuto a Butch prima di lui, e a suo padre in Vietnam — ⭐ +1 Punto Vittoria",
+      "desc": "\"It was your father's watch. He hid it in the one place he knew he could hide something.\" — ⭐ +1 Victory Point",
       "image": "vp/chapel.jpg"
     },
     "library": {
-      "name": "💼 La Valigetta",
+      "name": "💼 The Briefcase",
       "emoji": "💼",
-      "desc": "Nessuno sa cosa c'è dentro. Tutti la vogliono. — ⭐ +1 Punto Vittoria",
+      "desc": "Nobody knows what's inside. Everyone wants it. — ⭐ +1 Victory Point",
       "image": "vp/library.jpg"
     },
     "market": {
-      "name": "🏍️ La Moto \"Grace\" di Zed",
+      "name": "🏍️ Zed's Chopper \"Grace\"",
       "emoji": "🏍️",
-      "desc": "Zed è morto, baby. Zed è morto. — ⭐ +1 Punto Vittoria",
+      "desc": "\"Zed's dead, baby. Zed's dead.\" — ⭐ +1 Victory Point",
       "image": "vp/market.jpg"
     },
     "university": {
-      "name": "🏆 Trofeo del Twist",
+      "name": "🏆 Jack Rabbit Slim's Twist Trophy",
       "emoji": "🏆",
-      "desc": "Vince chi balla meglio. Jack Rabbit Slim's, ore 21. — ⭐ +1 Punto Vittoria",
+      "desc": "\"You can dance, you can jive, having the time of your life.\" — ⭐ +1 Victory Point",
       "image": "vp/university.jpg"
     },
     "palace": {
-      "name": "👛 Portafoglio \"Bad Mother Fucker\"",
+      "name": "👛 Bad Mother F***er Wallet",
       "emoji": "👛",
-      "desc": "\"Il cammino dell'uomo retto è ostacolato da ogni parte dalle iniquità degli esseri egoisti e dalla tirannia degli uomini malvagi...\" — ⭐ +1 Punto Vittoria",
+      "desc": "\"The path of the righteous man is beset on all sides by the inequities of the selfish and the tyranny of evil men...\" — ⭐ +1 Victory Point",
       "image": "vp/palace.jpg"
     }
   },
