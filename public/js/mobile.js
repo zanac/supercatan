@@ -272,8 +272,12 @@ function onMessage(data) {
       if (!prev) continue;
       if (p.hasLongestRoad && !prev.hasLongestRoad)
         showMobToast(`${skinLabel('longest_road_emoji','🛤')} ${escHtml(p.name)} — ${skinLabel('longest_road','Longest Road')}!`, 4000, 'toast-special');
+      if (!p.hasLongestRoad && prev.hasLongestRoad)
+        showMobToast(`${skinLabel('longest_road_emoji','🛤')} ${escHtml(p.name)} — ${t('log_lost_longest_road')||'lost Longest Road'}`, 4000, 'toast-special');
       if (p.hasLargestArmy && !prev.hasLargestArmy)
         showMobToast(`${skinLabel('largest_army_emoji','⚔️')} ${escHtml(p.name)} — ${skinLabel('largest_army','Largest Army')}!`, 4000, 'toast-special');
+      if (!p.hasLargestArmy && prev.hasLargestArmy)
+        showMobToast(`${skinLabel('largest_army_emoji','⚔️')} ${escHtml(p.name)} — ${t('log_lost_largest_army')||'lost Largest Army'}`, 4000, 'toast-special');
     }
   }
 

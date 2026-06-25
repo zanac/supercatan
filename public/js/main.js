@@ -251,9 +251,13 @@ function onMessage(data) { if (window._onMessageHook) window._onMessageHook(data
       const prev = prevSpecials[p.id];
       if (!prev) continue;
       if (p.hasLongestRoad && !prev.hasLongestRoad)
-        showGameToast(`🛤 ${escHtml(p.name)} — ${skinLabel('longest_road', t('log_longest_road', p.name, state.longestRoadLength||'5+'))}`, 'toast-special', 4000);
+        showGameToast(`${skinLabel('longest_road_emoji','🛤')} ${escHtml(p.name)} — ${skinLabel('longest_road', t('log_longest_road', p.name, state.longestRoadLength||'5+'))}`, 'toast-special', 4000);
+      if (!p.hasLongestRoad && prev.hasLongestRoad)
+        showGameToast(`${skinLabel('longest_road_emoji','🛤')} ${escHtml(p.name)} — ${t('log_lost_longest_road')||'lost Longest Road'}`, 'toast-special', 4000);
       if (p.hasLargestArmy && !prev.hasLargestArmy)
-        showGameToast(`⚔️ ${escHtml(p.name)} — ${skinLabel('largest_army', t('log_largest_army', p.name))}`, 'toast-special', 4000);
+        showGameToast(`${skinLabel('largest_army_emoji','⚔️')} ${escHtml(p.name)} — ${skinLabel('largest_army', t('log_largest_army', p.name))}`, 'toast-special', 4000);
+      if (!p.hasLargestArmy && prev.hasLargestArmy)
+        showGameToast(`${skinLabel('largest_army_emoji','⚔️')} ${escHtml(p.name)} — ${t('log_lost_largest_army')||'lost Largest Army'}`, 'toast-special', 4000);
     }
   }
 

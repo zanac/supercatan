@@ -105,6 +105,8 @@ const TRANSLATIONS = {
     log_steal:        (name, from) => `${name} ruba una risorsa da ${from}`,
     log_longest_road: (name, len) => `${name} ha la Strada più Lunga (${len})`,
     log_largest_army: name => `${name} ha il Grande Esercito`,
+    log_lost_longest_road: 'ha perso la Strada più Lunga',
+    log_lost_largest_army: 'ha perso il Grande Esercito',
 
     // Colors
 
@@ -346,6 +348,8 @@ const TRANSLATIONS = {
     log_steal:        (name, from) => `${name} steals from ${from}`,
     log_longest_road: (name, len) => `${name} has Longest Road (${len})`,
     log_largest_army: name => `${name} has Largest Army`,
+    log_lost_longest_road: 'lost Longest Road',
+    log_lost_largest_army: 'lost Largest Army',
 
 
     pin_game:              'Game PIN:',
@@ -584,6 +588,8 @@ const TRANSLATIONS = {
     log_steal:        (name, from) => `${name} vole une ressource à ${from}`,
     log_longest_road: (name, len) => `${name} a la Plus Longue Route (${len})`,
     log_largest_army: name => `${name} a la Grande Armée`,
+    log_lost_longest_road: 'a perdu la Plus Longue Route',
+    log_lost_largest_army: 'a perdu la Grande Armée',
 
 
     pin_game:              'PIN de la partie :',
@@ -822,6 +828,8 @@ const TRANSLATIONS = {
     log_steal:        (name, from) => `${name} stiehlt von ${from}`,
     log_longest_road: (name, len) => `${name} hat die Längste Straße (${len})`,
     log_largest_army: name => `${name} hat das Größte Heer`,
+    log_lost_longest_road: 'hat die Längste Straße verloren',
+    log_lost_largest_army: 'hat das Größte Heer verloren',
 
 
     pin_game:              'Spiel-PIN:',
