@@ -360,6 +360,62 @@ function onMessage(data) {
 }
 
 // ── Screens ───────────────────────────────────────────────────────
+function showMobPlayersSummary() {
+  if (!state) return;
+  const popup = document.getElementById('mob-players-summary-popup');
+  const content = document.getElementById('mob-players-summary-content');
+  if (!popup || !content) return;
+
+  const curIdx = state.phase === 'main' ? state.currentPlayerIndex
+               : (state.setupOrder?.[state.setupStep] ?? 0);
+
+  const hidden = state.hiddenResources ?? true;
+
+  content.innerHTML = state.players.map(p => {
+    const isMe = p.id === MY_PLAYER_ID;
+    const isCur = p.id === curIdx;
+    const totalCards = Object.values(p.resources).reduce((a,b) => a+b, 0);
+    const devCount = p.devCards?.length || 0;
+
+    // Badges
+    const badges = [
+      p.hasLongestRoad ? `<span style="font-size:.85rem">${skinLabel('longest_road_emoji','🛤')}🥇</span>` : '',
+      p.hasLargestArmy ? `<span style="font-size:.85rem">${skinLabel('largest_army_emoji','⚔️')}🥇</span>` : '',
+    ].join('');
+
+    // Resources: show own always, others only if !hidden
+    const resRow = isMe || !hidden
+      ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${
+          ['wood','brick','sheep','wheat','ore'].map(r => {
+            const n = p.resources[r] || 0;
+            return `<span style="background:rgba(255,255,255,.08);border-radius:6px;padding:2px 7px;font-size:.82rem">${resEmoji(r)} ${n}</span>`;
+          }).join('')
+        }</div>`
+      : `<div style="color:#888;font-size:.82rem;margin-top:4px">🃏 ${totalCards} ${t('cards')||'carte'}</div>`;
+
+    return `<div style="
+        border:1.5px solid ${isCur ? p.color : 'rgba(255,255,255,.1)'};
+        border-radius:12px;padding:10px 12px;margin-bottom:10px;
+        background:${isCur ? 'rgba(255,255,255,.05)' : 'transparent'}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+        <span style="width:10px;height:10px;border-radius:50%;background:${p.color};display:inline-block;flex-shrink:0"></span>
+        <span style="color:${p.color};font-weight:bold;font-size:.95rem">${escHtml(p.name)}</span>
+        ${isMe ? '<span style="font-size:.7rem;color:#888;background:rgba(255,255,255,.1);border-radius:8px;padding:1px 6px">Tu</span>' : ''}
+        ${isCur ? '<span style="font-size:.7rem;color:#f0c040;background:rgba(200,164,74,.15);border-radius:8px;padding:1px 6px">▶</span>' : ''}
+        <span style="margin-left:auto;color:#f0c040;font-weight:bold">⭐ ${p.points}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:.82rem;color:#aaa;margin-top:3px">
+        ${devCount > 0 ? `<span>🃏 ${devCount}</span>` : ''}
+        ${badges}
+        ${(p.knightsPlayed||0) > 0 ? `<span>${skinLabel('largest_army_emoji','⚔️')}×${p.knightsPlayed}</span>` : ''}
+      </div>
+      ${resRow}
+    </div>`;
+  }).join('');
+
+  popup.style.display = 'flex';
+}
+
 async function showMobGuide() {
   // Wait for skin to finish loading before rendering
   await _skinLoadPromise;

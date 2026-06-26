@@ -88,6 +88,30 @@
       display:flex;align-items:center;justify-content:center;
       cursor:pointer;">↺</button>
 
+    <!-- Players summary button -->
+    <button id="mob-btn-players-summary" onclick="showMobPlayersSummary()" title="Riepilogo giocatori" style="
+      position:absolute;top:10px;left:54px;z-index:200;
+      width:36px;height:36px;border-radius:50%;
+      background:rgba(0,0,0,.45);border:1.5px solid rgba(255,255,255,.2);
+      color:rgba(255,255,255,.7);font-size:1rem;line-height:1;
+      display:flex;align-items:center;justify-content:center;cursor:pointer;">👥</button>
+
+    <!-- Players summary popup -->
+    <div id="mob-players-summary-popup" style="
+      display:none;position:fixed;inset:0;z-index:9000;
+      background:rgba(0,0,0,.75);align-items:center;justify-content:center;">
+      <div style="
+        background:#1a1a2e;border:2px solid #c8a84b;border-radius:16px;
+        padding:20px;max-width:340px;width:90%;max-height:80vh;overflow-y:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <strong style="color:#c8a84b;font-size:1.05rem">👥 Giocatori</strong>
+          <button onclick="document.getElementById('mob-players-summary-popup').style.display='none'"
+            style="background:none;border:none;color:#aaa;font-size:1.3rem;cursor:pointer;padding:0 4px">✕</button>
+        </div>
+        <div id="mob-players-summary-content"></div>
+      </div>
+    </div>
+
     <!-- Board canvas (fills ~60% of screen) -->
     <div id="mob-board-wrap">
       <canvas id="mob-board-canvas"></canvas>
