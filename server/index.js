@@ -276,7 +276,7 @@ function handle(msg, ws) {
 
     case 'START_GAME':
       if (!room) return;
-      room.game = new CatanGame(msg.players, { desertCenter: !!msg.desertCenter, zeroResources: msg.zeroResources !== false, randomPorts: !!msg.randomPorts, randomNumbers: !!msg.randomNumbers, skinId: msg.skinId || 'standard', debugDevCard: msg.debugDevCard || null, debugResources: !!msg.debugResources, debugForceDice: msg.debugForceDice || null, quickGame: !!msg.quickGame, unlimitedDev: msg.unlimitedDev !== false, instantDev: !!msg.instantDev, hiddenResources: msg.hiddenResources !== false });
+      room.game = new CatanGame(msg.players, { desertCenter: !!msg.desertCenter, zeroResources: msg.zeroResources !== false, randomPorts: !!msg.randomPorts, randomNumbers: !!msg.randomNumbers, skinId: msg.skinId || 'standard', debugDevCard: msg.debugDevCard || null, debugResources: !!msg.debugResources, debugForceDice: msg.debugForceDice || null, quickGame: !!msg.quickGame, unlimitedDev: msg.unlimitedDev !== false, instantDev: !!msg.instantDev, hiddenResources: !!msg.hiddenResources, balancedResources: !!msg.balancedResources });
       room.undoStack = [];
       broadcastState(pin);
       break;

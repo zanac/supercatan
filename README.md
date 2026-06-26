@@ -62,6 +62,7 @@ If the admin closes or refreshes the page, navigate to `/?pin=XXXXX` to rejoin. 
 | Unlimited dev cards | ✅ On | Players can buy multiple dev cards per turn (house rule); turn off for standard rules (1 per turn) |
 | Instant Cards | Off | Newly bought dev cards can be played immediately in the same turn |
 | Hidden Resources | ✅ On | Each player only sees their own resources; others see only gain/loss deltas. Trades become blind — the proposer cannot see what the target holds. The server validates all trades server-side. |
+| Balanced Resources | Off | Hex tiles are distributed so no resource type forms clusters — the algorithm guarantees no hex has more than 1 neighbor of the same resource type, for a more strategic map. |
 
 ---
 

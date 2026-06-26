@@ -41,6 +41,7 @@ class CatanGame {
     this.debugResources = options.debugResources || false; // give all players 10 of each
     this.debugForceDice = options.debugForceDice || null;
     this.hiddenResources = !!options.hiddenResources; // default false
+    this.balancedResources = !!options.balancedResources; // default false
     this.players = playerConfigs.map((p, i) => ({
       id: i,
       name: p.name,
@@ -96,7 +97,9 @@ class CatanGame {
     const CENTER_HEX_INDEX = 9;
 
     // Shuffle resource tiles
-    const tiles = this._shuffleTiles();
+    const tiles = this.balancedResources
+      ? this._balancedShuffleTiles()
+      : this._shuffleTiles();
 
     // If desertCenter: pull desert out, place it at center, fill rest randomly
     if (this.desertCenter) {
@@ -172,6 +175,92 @@ class CatanGame {
       const j = Math.floor(Math.random() * (i + 1));
       [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
     }
+    return tiles;
+  }
+
+  // Pre-computed adjacency map for the 19-hex board (layout [3,4,5,4,3])
+  // Each entry lists the hex indices adjacent to that hex
+  static get HEX_ADJACENCY() {
+    return [
+      [1,3,4],         // 0
+      [0,2,4,5],       // 1
+      [1,5,6],         // 2
+      [0,4,7,8],       // 3
+      [0,1,3,5,8,9],   // 4
+      [1,2,4,6,9,10],  // 5
+      [2,5,10,11],     // 6
+      [3,8,12],        // 7
+      [3,4,7,9,12,13], // 8
+      [4,5,8,10,13,14],// 9
+      [5,6,9,11,14,15],// 10
+      [6,10,15],       // 11
+      [7,8,13,16],     // 12
+      [8,9,12,14,16,17],// 13
+      [9,10,13,15,17,18],// 14
+      [10,11,14,18],   // 15
+      [12,13,17],      // 16
+      [13,14,16,18],   // 17
+      [14,15,17],      // 18
+    ];
+  }
+
+  // Balanced shuffle: ensures no hex has more than 1 neighbor of the same resource type
+  _balancedShuffleTiles() {
+    const adj = CatanGame.HEX_ADJACENCY;
+
+    // Count violations: pairs of adjacent hexes with the same resource
+    const countViolations = (tiles) => {
+      let v = 0;
+      for (let i = 0; i < tiles.length; i++) {
+        for (const j of adj[i]) {
+          if (j > i && tiles[i] === tiles[j] && tiles[i] !== DESERT) v++;
+        }
+      }
+      return v;
+    };
+
+    // Start with a random shuffle
+    let tiles = this._shuffleTiles();
+    let violations = countViolations(tiles);
+    let attempts = 0;
+
+    while (violations > 0 && attempts < 2000) {
+      attempts++;
+      // Pick a random violating hex
+      const violators = [];
+      for (let i = 0; i < tiles.length; i++) {
+        if (adj[i].some(j => tiles[j] === tiles[i] && tiles[i] !== DESERT)) {
+          violators.push(i);
+        }
+      }
+      const a = violators[Math.floor(Math.random() * violators.length)];
+
+      // Try to swap with a random non-adjacent hex of a different type
+      const nonAdj = [];
+      for (let k = 0; k < tiles.length; k++) {
+        if (k !== a && !adj[a].includes(k) && tiles[k] !== tiles[a]) nonAdj.push(k);
+      }
+      if (nonAdj.length === 0) { tiles = this._shuffleTiles(); violations = countViolations(tiles); continue; }
+
+      const b = nonAdj[Math.floor(Math.random() * nonAdj.length)];
+      [tiles[a], tiles[b]] = [tiles[b], tiles[a]];
+      const newV = countViolations(tiles);
+
+      // Accept if improves or equal (allow lateral moves to escape local minima)
+      if (newV <= violations) {
+        violations = newV;
+      } else {
+        // Revert
+        [tiles[a], tiles[b]] = [tiles[b], tiles[a]];
+      }
+
+      // If stuck for too long, restart from a new shuffle
+      if (attempts % 200 === 0 && violations > 0) {
+        tiles = this._shuffleTiles();
+        violations = countViolations(tiles);
+      }
+    }
+
     return tiles;
   }
 
@@ -991,7 +1080,8 @@ class CatanGame {
       winPoints:      this.winPoints || 10,
       debugResources: this.debugResources || false,
       debugForceDice: this.debugForceDice || null,
-      hiddenResources: this.hiddenResources || false
+      hiddenResources: this.hiddenResources || false,
+      balancedResources: this.balancedResources || false
     };
   }
 
@@ -1030,6 +1120,7 @@ class CatanGame {
       devCardBoughtThisTurn: this.devCardBoughtThisTurn,
       pendingSetupEndTurn:this.pendingSetupEndTurn,
       hiddenResources:    this.hiddenResources,
+      balancedResources:  this.balancedResources,
     }));
   }
 
@@ -1060,6 +1151,7 @@ class CatanGame {
     this.instantDev          = !!s.instantDev;
     this.devCardBoughtThisTurn = s.devCardBoughtThisTurn || false;
     this.hiddenResources     = !!s.hiddenResources;
+    this.balancedResources   = !!s.balancedResources;
     this.pendingSteal        = s.pendingSteal;
     this.robberCandidates    = s.robberCandidates;
     this.pendingRoadBuilding = s.pendingRoadBuilding;
