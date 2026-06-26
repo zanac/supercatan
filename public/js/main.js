@@ -1265,10 +1265,11 @@ function render() {
 // Admin (WEB_PLAYER_ID===null) always sees all. Spectator always hides all.
 // Web player: hide others if hiddenResources option is on.
 function shouldHideRes(p) {
-  if (!state?.hiddenResources) return false;          // option off → show all
-  if (window.__SPECTATOR_MODE) return true;            // spectator → hide all
-  if (WEB_PLAYER_ID === null) return false;            // admin → show all
-  return p.id !== WEB_PLAYER_ID;                       // web player → hide others
+  const hidden = state?.hiddenResources ?? true; // default true if not set
+  if (!hidden) return false;                       // option off → show all
+  if (window.__SPECTATOR_MODE) return true;        // spectator → hide all
+  if (WEB_PLAYER_ID === null) return false;        // admin → show all
+  return p.id !== WEB_PLAYER_ID;                   // web player → hide others
 }
 
 function renderPlayers() {
