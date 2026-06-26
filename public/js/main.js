@@ -10,6 +10,7 @@ let playerColors = ['#e03030', '#4080e0', '#30a030', '#e0a020'];
 let uiScale = 2; // 1 | 1.7 | 2  — default Maxi
 let desertCenter = true;  // default: desert at center
 let zeroResources = true;  // default: no starting resources
+let hiddenResources = true; // default: hide other players' resource counts
 let randomPorts   = false; // default: standard port layout
 let randomNumbers = false; // default: standard spiral number placement
 let quickGame     = false; // default: win at 10 points; quick=win at 7
@@ -404,6 +405,12 @@ function initSetupScreen(skipRoom) {
     if (instantDev) showRuleToast('rule_desc_instant');
   });
 
+  document.getElementById('btn-hidden-res')?.addEventListener('click', () => {
+    hiddenResources = !hiddenResources;
+    document.getElementById('btn-hidden-res').classList.toggle('active', hiddenResources);
+    if (hiddenResources) showRuleToast('rule_desc_hidden_res');
+  });
+
   // Debug mode: show dev card selector if ?debug=1 in URL
   if (_urlParams.get('debug') === '1') {
     document.getElementById('debug-dev-section')?.style && (document.getElementById('debug-dev-section').style.display='block');
@@ -606,7 +613,7 @@ function startGame() {
   requestAnimationFrame(() => {
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
-    send({ type: 'START_GAME', players, desertCenter, zeroResources, randomPorts, randomNumbers, quickGame, unlimitedDev, instantDev, skinId: selectedSkinId, debugDevCard, debugResources, debugForceDice });
+    send({ type: 'START_GAME', players, desertCenter, zeroResources, randomPorts, randomNumbers, quickGame, unlimitedDev, instantDev, hiddenResources, skinId: selectedSkinId, debugDevCard, debugResources, debugForceDice });
   });
 }
 
@@ -646,7 +653,7 @@ window.startPhoneHost = function() {
   showScreen('phone-host-screen');
   document.getElementById('ph-pin-value').textContent = currentPin;
   history.replaceState({}, '', `?pin=${currentPin}`);
-  send({ type: 'START_GAME', players, desertCenter, zeroResources, randomPorts, randomNumbers, quickGame, unlimitedDev, instantDev,
+  send({ type: 'START_GAME', players, desertCenter, zeroResources, randomPorts, randomNumbers, quickGame, unlimitedDev, instantDev, hiddenResources,
          skinId: selectedSkinId, debugDevCard, debugResources, debugForceDice });
 };
 
@@ -1254,6 +1261,16 @@ function render() {
   checkModals();
 }
 
+// Returns true if we should hide resource counts for player p
+// Admin (WEB_PLAYER_ID===null) always sees all. Spectator always hides all.
+// Web player: hide others if hiddenResources option is on.
+function shouldHideRes(p) {
+  if (!state?.hiddenResources) return false;          // option off → show all
+  if (window.__SPECTATOR_MODE) return true;            // spectator → hide all
+  if (WEB_PLAYER_ID === null) return false;            // admin → show all
+  return p.id !== WEB_PLAYER_ID;                       // web player → hide others
+}
+
 function renderPlayers() {
   const panel = document.getElementById('players-panel');
   panel.innerHTML = '';
@@ -1270,8 +1287,9 @@ function renderPlayers() {
     card.style.borderColor = p.id===curIdx ? p.color : 'rgba(255,255,255,.12)';
     card.style.opacity     = p.id===curIdx ? '1' : '0.75';
     const res = p.resources;
+    const hide = shouldHideRes(p);
     const resHtml = ['wood','brick','sheep','wheat','ore'].map(r=>
-      `<div class="res-badge"><span class="res-icon">${resEmoji(r)}</span><span>${res[r]||0}</span></div>`
+      `<div class="res-badge${hide?' res-hidden':''}"><span class="res-icon">${resEmoji(r)}</span><span>${hide ? '?' : (res[r]||0)}</span></div>`
     ).join('');
     const devCount = p.devCards?.length||0;
     const specials = badgeHTML(p);
@@ -2621,6 +2639,7 @@ function renderPlayersWithGains(gameState, gains) {
 
     const playerGains = gains[p.id] || {};
     const res = p.resources;
+    const hide = shouldHideRes(p);
 
     const resHtml = ['wood','brick','sheep','wheat','ore'].map(r => {
       const gained = playerGains[r] || 0;
@@ -2629,9 +2648,9 @@ function renderPlayersWithGains(gameState, gains) {
       const gainBadge = gained > 0
         ? `<span class="res-gain-delta">+${gained}</span>`
         : '';
-      return `<div class="res-badge${cls}">
+      return `<div class="res-badge${cls}${hide?' res-hidden':''}">
         <span class="res-icon">${resEmoji(r)}</span>
-        <span>${total}</span>
+        <span>${hide ? (gained > 0 ? '' : '?') : total}</span>
         ${gainBadge}
       </div>`;
     }).join('');
@@ -2846,11 +2865,12 @@ function renderPlayersWithTradeDeltas(deltas) {
 
     const playerDeltas = deltas[p.id] || {};
     const res = p.resources;
+    const hide = shouldHideRes(p);
     const resHtml = ['wood','brick','sheep','wheat','ore'].map(r => {
       const d = playerDeltas[r];
       const cls = d > 0 ? ' trade-gained' : d < 0 ? ' trade-lost' : '';
       const badge = d ? `<span class="res-delta ${d>0?'delta-pos':'delta-neg'}">${d>0?'+':''}${d}</span>` : '';
-      return `<div class="res-badge${cls}"><span class="res-icon">${resEmoji(r)}</span><span>${res[r]||0}</span>${badge}</div>`;
+      return `<div class="res-badge${cls}${hide?' res-hidden':''}"><span class="res-icon">${resEmoji(r)}</span><span>${hide ? (d ? '' : '?') : (res[r]||0)}</span>${badge}</div>`;
     }).join('');
 
     const devCount = p.devCards?.length||0;

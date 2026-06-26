@@ -220,6 +220,8 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Georgia'
 .player-resources { display: flex; flex-wrap: wrap; gap: 4px; }
 .res-badge { background: rgba(255,255,255,.1); border-radius: 6px; padding: 3px 7px; font-size: var(--fs-res, .78rem); display: flex; align-items: center; gap: 3px; }
 .res-badge .res-icon { font-size: .85rem; }
+.res-badge.res-hidden { opacity: .45; }
+.res-badge.res-hidden span:last-child { color: #666; }
 .player-specials { display: flex; gap: 4px; margin-top: 5px; font-size: .7rem; }
 .special-badge { background: rgba(200,164,74,.3); border-radius: 4px; padding: 2px 5px; color: #f0c040; }
 

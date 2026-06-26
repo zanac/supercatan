@@ -39,7 +39,8 @@ class CatanGame {
     this.instantDev    = !!options.instantDev;            // default false
     this.winPoints      = options.quickGame ? 7 : 10;
     this.debugResources = options.debugResources || false; // give all players 10 of each
-    this.debugForceDice = options.debugForceDice || null;  // force dice total (2-12)
+    this.debugForceDice = options.debugForceDice || null;
+    this.hiddenResources = options.hiddenResources !== false; // default true
     this.players = playerConfigs.map((p, i) => ({
       id: i,
       name: p.name,
@@ -1027,6 +1028,7 @@ class CatanGame {
       instantDev:         this.instantDev,
       devCardBoughtThisTurn: this.devCardBoughtThisTurn,
       pendingSetupEndTurn:this.pendingSetupEndTurn,
+      hiddenResources:    this.hiddenResources,
     }));
   }
 
@@ -1056,6 +1058,7 @@ class CatanGame {
     this.unlimitedDev        = s.unlimitedDev !== false;
     this.instantDev          = !!s.instantDev;
     this.devCardBoughtThisTurn = s.devCardBoughtThisTurn || false;
+    this.hiddenResources     = s.hiddenResources !== false;
     this.pendingSteal        = s.pendingSteal;
     this.robberCandidates    = s.robberCandidates;
     this.pendingRoadBuilding = s.pendingRoadBuilding;
