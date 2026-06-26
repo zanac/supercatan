@@ -126,6 +126,17 @@
   </div>
 
   <!-- PHONE HOST SCREEN -->
+  <div id="waiting-screen" class="screen">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:20px;text-align:center;padding:24px">
+      <div style="font-size:3rem">⏳</div>
+      <div style="font-size:1.4rem;color:#f0c040;font-family:Georgia,serif" data-t="waiting_game_start">In attesa che la partita inizi...</div>
+      <div id="waiting-player-name" style="font-size:1rem;color:#c8b080"></div>
+      <div style="width:48px;height:4px;background:rgba(200,164,74,.2);border-radius:2px;overflow:hidden;margin-top:8px">
+        <div style="height:100%;background:#f0c040;border-radius:2px;animation:wait-pulse 1.5s ease-in-out infinite"></div>
+      </div>
+    </div>
+  </div>
+
   <div id="phone-host-screen" class="screen">
     <div id="ph-container">
       <div id="ph-header">

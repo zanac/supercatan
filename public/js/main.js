@@ -285,7 +285,6 @@ function onMessage(data) { if (window._onMessageHook) window._onMessageHook(data
   }
 
   if (state) {
-    // Sync PIN from state (needed after F5 rejoin)
     if (state.pin && state.pin !== currentPin) {
       currentPin = state.pin;
       history.replaceState({}, '', `?pin=${currentPin}`);
@@ -329,6 +328,9 @@ function onMessage(data) { if (window._onMessageHook) window._onMessageHook(data
     }
     return;
   }
+  // state is null — game not started yet
+  // If we're a web player waiting for the game, stay on waiting-screen
+  if (WEB_PLAYER_ID !== null && document.getElementById('waiting-screen')?.classList.contains('active')) return;
   render();
 }
 
@@ -2366,6 +2368,12 @@ if (!window.__SPECTATOR_MODE) {
         if (info.playerId !== undefined) {
           WEB_PLAYER_ID = info.playerId;
           history.replaceState({}, '', `?pin=${currentPin}&lang=${urlLang||LANG}`);
+          // If game not yet started, show waiting screen
+          if (!info.gameActive) {
+            const nameEl = document.getElementById('waiting-player-name');
+            if (nameEl) nameEl.textContent = info.playerName || '';
+            showScreen('waiting-screen');
+          }
         }
       } catch(e) {}
       connectWS();
