@@ -990,7 +990,8 @@ class CatanGame {
       debugDevCard:   this.debugDevCard  || null,
       winPoints:      this.winPoints || 10,
       debugResources: this.debugResources || false,
-      debugForceDice: this.debugForceDice || null
+      debugForceDice: this.debugForceDice || null,
+      hiddenResources: this.hiddenResources || false
     };
   }
 
