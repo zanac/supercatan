@@ -137,10 +137,12 @@
       "image": "dev/monopoly.jpg"
     },
     "yearOfPlenty": {
-      "image": "dev/year_of_plenty.jpg"
+      "image": "dev/year_of_plenty.jpg",
+      "desc": "E se per caso qualcuno di voi coglioni si azzarda a muoversi, io vi faccio secchi, brutti figli di puttana! Tutti, fino all'ultimo! Prendi 2 risorse qualsiasi dalla banca."
     },
     "roadBuilding": {
-      "image": "dev/road_building.jpg"
+      "image": "dev/road_building.jpg",
+      "desc": "Sono il signor Wolf. Risolvo problemi. Costruisci 2 Vie di Fuga gratuitamente."
     }
   }
 }
