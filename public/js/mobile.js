@@ -1827,17 +1827,26 @@ function showTradeAccept(trade){
   // trade = { fromId, toId, offer, want } — chiamata sul telefono del DESTINATARIO
   const from=state.players[trade.fromId], to=state.players[trade.toId];
   const fmt=obj=>Object.entries(obj).filter(([,a])=>a>0).map(([r,a])=>`${a}×${resEmoji(r)}`).join(' ');
+
+  // Check if recipient has the requested resources
+  const toMissing = Object.entries(trade.want||{})
+    .filter(([r,a])=>(to.resources[r]||0) < parseInt(a));
+  const canAccept = toMissing.length === 0;
+
   document.getElementById('mob-accept-title').innerHTML=
     `<span style="color:${from.color}">${escHtml(from.name)}</span> → <span style="color:${to.color}">${escHtml(to.name)}</span>`;
   document.getElementById('mob-accept-details').innerHTML=`
     <p style="margin:8px 0"><b>${escHtml(from.name)}</b> dà: ${fmt(trade.offer)}</p>
     <p style="margin:8px 0"><b>${escHtml(to.name)}</b> dà: ${fmt(trade.want)}</p>
+    ${!canAccept ? `<p style="color:#e06060;margin:8px 0;font-size:.85rem">⚠️ ${escHtml(to.name)} non ha le risorse richieste</p>` : ''}
     <p style="color:${to.color};margin-top:14px;font-weight:bold;text-align:center">${escHtml(to.name)}, accetti?</p>`;
+  document.getElementById('mob-btn-accept').style.display = canAccept ? '' : 'none';
   document.getElementById('mob-btn-accept').onclick=()=>{
     send({type:'TRADE_PLAYER', fromId:trade.fromId, toId:trade.toId,
           offer:trade.offer, want:trade.want, accepted:true});
     closeMobModal('mob-modal-accept');
   };
+  document.getElementById('mob-btn-reject').textContent = canAccept ? t('reject_btn')||'Rifiuta' : t('close_btn')||'Chiudi';
   document.getElementById('mob-btn-reject').onclick=()=>{
     send({type:'TRADE_PLAYER', fromId:trade.fromId, toId:trade.toId, rejected:true});
     closeMobModal('mob-modal-accept');
