@@ -2019,7 +2019,7 @@ function renderPTFull() {
   }).join('');
 
   const headerRight = target
-    ? `<span style="color:${target.color}">${escHtml(target.name)}</span>${(state.hiddenResources??true) ? '' : (' ' + t('pt_have',target.resources ? Object.values(target.resources).reduce((a,b)=>a+b,0) : ''))}`
+    ? `<span style="color:${target.color}">${escHtml(target.name)}</span>${(state.hiddenResources??false) ? '' : (' ' + t('pt_have',target.resources ? Object.values(target.resources).reduce((a,b)=>a+b,0) : ''))}`
     : `<span class="muted">${t('choose_player')}</span>`;
 
   document.getElementById('player-trade-offer').innerHTML = `
