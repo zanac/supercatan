@@ -137,10 +137,13 @@
       "image": "dev/monopoly.jpg"
     },
     "yearOfPlenty": {
-      "image": "dev/year_of_plenty.jpg"
+      "image": "dev/year_of_plenty.jpg",
+      "desc": "\"Any of you fucking pricks move, and I'll execute every motherfucking last one of you! Take any 2 resources from the bank.\""
     },
     "roadBuilding": {
-      "image": "dev/road_building.jpg"
+      "image": "dev/road_building.jpg",
+      "desc": "\"I'm Winston Wolfe. I solve problems. Build 2 Escape Routes for free.\""
     }
-  }
+  },
+  "lang": "en"
 }

@@ -425,6 +425,7 @@ function initSetupScreen(skipRoom) {
       btn.classList.add('active');
       applyTranslations();
       renderPlayerConfigs();
+      renderSkins(); // re-filter skins by new language
     })
   );
 
@@ -2303,20 +2304,35 @@ async function loadSkins() {
     const res = await fetch('/api/skins');
     if (!res.ok) return;
     const skins = await res.json();
-    if (skins.length <= 1) return; // only standard, hide selector
-    const container = document.getElementById('skin-selector');
-    const cards = document.getElementById('skin-cards');
-    if (!container || !cards) return;
-    container.style.display = 'flex';
-    cards.innerHTML = skins.map(s => `
-      <div class="skin-card ${s.id==='standard'?'active':''}" data-skin="${s.id}"
-           onclick="selectSkin('${s.id}')">
-        ${s.preview ? `<img src="${s.preview}" class="skin-preview" alt="${s.name}">` : '<div class="skin-preview-placeholder">🎨</div>'}
-        <span>${s.name}</span>
-      </div>`).join('');
     window._availableSkins = skins;
+    renderSkins();
   } catch(e) { /* skins not available */ }
 }
+
+function renderSkins() {
+  const skins = window._availableSkins;
+  if (!skins || skins.length <= 1) return;
+  const container = document.getElementById('skin-selector');
+  const cards = document.getElementById('skin-cards');
+  if (!container || !cards) return;
+
+  // Show skins with no lang (universal) or matching current lang
+  const filtered = skins.filter(s => !s.lang || s.lang === LANG);
+
+  // If current selection is now hidden, reset to standard
+  if (selectedSkinId && selectedSkinId !== 'standard' && !filtered.find(s => s.id === selectedSkinId)) {
+    selectSkin('standard');
+  }
+
+  container.style.display = filtered.length > 1 ? 'flex' : 'none';
+  cards.innerHTML = filtered.map(s => `
+    <div class="skin-card ${s.id===(selectedSkinId||'standard')?'active':''}" data-skin="${s.id}"
+         onclick="selectSkin('${s.id}')">
+      ${s.preview ? `<img src="${s.preview}" class="skin-preview" alt="${s.name}">` : '<div class="skin-preview-placeholder">🎨</div>'}
+      <span>${s.name}</span>
+    </div>`).join('');
+}
+
 loadSkins();
 
 window.toggleDebugRes = function() {
