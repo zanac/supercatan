@@ -1026,7 +1026,8 @@ function updateBuildButtons() {
   const canSetupRoad = isMySetupTurn && state.waitingForRoad;
   const canSetupSett = isMySetupTurn && !state.waitingForRoad;
   const othersPendingDiscard2 = (state.pendingDiscard||[]).filter(id=>id!==MY_PLAYER_ID);
-  const ca=state.diceRolled&&!state.pendingRobber&&!state.pendingSteal&&!(state.pendingDiscard||[]).includes(MY_PLAYER_ID)&&othersPendingDiscard2.length===0;
+  const hasPendingTrade = !!state.pendingTrade;
+  const ca=state.diceRolled&&!state.pendingRobber&&!state.pendingSteal&&!(state.pendingDiscard||[]).includes(MY_PLAYER_ID)&&othersPendingDiscard2.length===0&&!hasPendingTrade;
   const rb=state.pendingRoadBuilding>0;
   setBB('mob-btn-road', ca?(rb||(res.wood>=1&&res.brick>=1)):canSetupRoad, ca||rb||canSetupRoad);
   const mobHasSettSpot = mobHasValidSettlementSpot(isSetup ? MY_PLAYER_ID : state.currentPlayerIndex);
@@ -1039,7 +1040,6 @@ function updateBuildButtons() {
   const othersPendingDiscard = (state.pendingDiscard||[]).filter(id=>id!==MY_PLAYER_ID);
   const isMySetupEndTurn = (state.phase==='setup1'||state.phase==='setup2') && state.pendingSetupEndTurn &&
     (state.setupOrder?.[state.setupStep]??0)===MY_PLAYER_ID;
-  const hasPendingTrade = !!state.pendingTrade;
   const endTurnBlocked = !isMySetupEndTurn && (!ca || othersPendingDiscard.length > 0 || hasPendingTrade);
   const etBtn = document.getElementById('mob-btn-end-turn');
   etBtn.disabled = endTurnBlocked;

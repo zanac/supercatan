@@ -1489,7 +1489,7 @@ function updateButtonStates() {
     btnEndTurn.title = '';
   }
 
-  const canAct = isMain && rolled && !pending && isMyWebTurn;
+  const canAct = isMain && rolled && !pending && isMyWebTurn && !hasPendingTrade;
 
   // ── Road ──
   // Resources OK (or free from card) AND at least one valid placement exists
