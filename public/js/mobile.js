@@ -369,7 +369,7 @@ function showMobPlayersSummary() {
   const curIdx = state.phase === 'main' ? state.currentPlayerIndex
                : (state.setupOrder?.[state.setupStep] ?? 0);
 
-  const hidden = state.hiddenResources ?? true;
+  const hidden = state.hiddenResources ?? false;
 
   content.innerHTML = state.players.map(p => {
     const isMe = p.id === MY_PLAYER_ID;
@@ -1823,7 +1823,7 @@ document.getElementById('mob-btn-player').addEventListener('click',()=>{
 window.selPTTarget=id=>{ptTarget=id; ptWant={wood:0,brick:0,sheep:0,wheat:0,ore:0}; renderPTModal();};
 window.chMobPT=(side,res,d)=>{
   const me=state.players[MY_PLAYER_ID];
-  const blind = state.hiddenResources ?? true;
+  const blind = state.hiddenResources ?? false;
   if(side==='offer') ptOffer[res]=Math.max(0,Math.min(me.resources[res]||0,(ptOffer[res]||0)+d));
   else { const tgt=ptTarget!==null?state.players[ptTarget]:null;
     if(!tgt) return;
@@ -1834,7 +1834,7 @@ window.chMobPT=(side,res,d)=>{
 function renderPTModal(){
   const me=state.players[MY_PLAYER_ID], others=state.players.filter(p=>p.id!==MY_PLAYER_ID);
   const tgt=ptTarget!==null?state.players[ptTarget]:null;
-  const blind = state.hiddenResources ?? true;
+  const blind = state.hiddenResources ?? false;
   document.getElementById('mob-trade-targets').innerHTML=others.map(p=>
     `<button class="mob-target-btn ${ptTarget===p.id?'active':''}" style="--pcol:${p.color}"
              onclick="selPTTarget(${p.id})"><span style="color:${p.color}">●</span> ${escHtml(p.name)}</button>`).join('');

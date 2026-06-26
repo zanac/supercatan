@@ -1267,7 +1267,7 @@ function render() {
 // Admin (WEB_PLAYER_ID===null) always sees all. Spectator always hides all.
 // Web player: hide others if hiddenResources option is on.
 function shouldHideRes(p) {
-  const hidden = state?.hiddenResources ?? true; // default true if not set
+  const hidden = state?.hiddenResources ?? false; // default false if not set
   if (!hidden) return false;                       // option off → show all
   if (window.__SPECTATOR_MODE) return true;        // spectator → hide all
   if (WEB_PLAYER_ID === null) return false;        // admin → show all
@@ -1988,7 +1988,7 @@ function renderPTFull() {
 
   const rows = RES_LIST.map(r => {
     const myHave   = me.resources[r]||0;
-    const blind    = state.hiddenResources ?? true;
+    const blind    = state.hiddenResources ?? false;
     const theirHave = target ? (blind ? '?' : (target.resources[r]||0)) : '—';
     const wantMax  = target ? (blind ? 99 : (target.resources[r]||0)) : 0;
     const offerVal = ptOffer[r]||0;
@@ -2044,7 +2044,7 @@ window.selectPTTarget = id => { ptTarget = id; ptWant={wood:0,brick:0,sheep:0,wh
 window.changePT = (side, res, delta) => {
   const me = state.players[state.currentPlayerIndex];
   const target = ptTarget !== null ? state.players[ptTarget] : null;
-  const blind = state.hiddenResources ?? true;
+  const blind = state.hiddenResources ?? false;
   if (side === 'offer') {
     const max = me.resources[res]||0;
     ptOffer[res] = Math.max(0, Math.min(max, (ptOffer[res]||0) + delta));
@@ -2080,7 +2080,7 @@ function showTradeAcceptModal(targetId, offer, want, fromId) {
   const fromIdx = fromId !== undefined ? fromId : state.currentPlayerIndex;
   const from = state.players[fromIdx];
   const to   = state.players[targetId];
-  const blind = state.hiddenResources ?? true;
+  const blind = state.hiddenResources ?? false;
 
   const fmtRes = obj => Object.entries(obj||{})
     .filter(([,a])=>+a>0)
