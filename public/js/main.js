@@ -1988,7 +1988,9 @@ function renderPTFull() {
 
   const rows = RES_LIST.map(r => {
     const myHave   = me.resources[r]||0;
-    const theirHave = target ? (target.resources[r]||0) : '—';
+    const blind    = state.hiddenResources ?? true;
+    const theirHave = target ? (blind ? '?' : (target.resources[r]||0)) : '—';
+    const wantMax  = target ? (blind ? 99 : (target.resources[r]||0)) : 0;
     const offerVal = ptOffer[r]||0;
     const wantVal  = ptWant[r]||0;
     return `
@@ -2009,15 +2011,15 @@ function renderPTFull() {
         <div class="stepper">
           <button onclick="changePT('want','${r}',-1)" ${!target?'disabled':''}>−</button>
           <span id="pt-want-${r}" class="${wantVal>0?'pt-active':''}">${wantVal}</span>
-          <button onclick="changePT('want','${r}',1)" ${!target||(target&&wantVal>=(target.resources[r]||0))?'disabled':''}>+</button>
+          <button onclick="changePT('want','${r}',1)" ${!target||wantVal>=wantMax?'disabled':''}>+</button>
         </div>
-        <span class="pt-count ${target&&theirHave>0?'has':'zero'}">${theirHave}</span>
+        <span class="pt-count ${target&&!blind&&(target.resources[r]||0)>0?'has':'zero'}">${theirHave}</span>
       </div>
     </div>`;
   }).join('');
 
   const headerRight = target
-    ? `<span style="color:${target.color}">${escHtml(target.name)}</span> ${t('pt_have',target.resources ? Object.values(target.resources).reduce((a,b)=>a+b,0) : '')}`
+    ? `<span style="color:${target.color}">${escHtml(target.name)}</span>${(state.hiddenResources??true) ? '' : (' ' + t('pt_have',target.resources ? Object.values(target.resources).reduce((a,b)=>a+b,0) : ''))}`
     : `<span class="muted">${t('choose_player')}</span>`;
 
   document.getElementById('player-trade-offer').innerHTML = `
@@ -2042,12 +2044,13 @@ window.selectPTTarget = id => { ptTarget = id; ptWant={wood:0,brick:0,sheep:0,wh
 window.changePT = (side, res, delta) => {
   const me = state.players[state.currentPlayerIndex];
   const target = ptTarget !== null ? state.players[ptTarget] : null;
+  const blind = state.hiddenResources ?? true;
   if (side === 'offer') {
     const max = me.resources[res]||0;
     ptOffer[res] = Math.max(0, Math.min(max, (ptOffer[res]||0) + delta));
   } else {
-    if (!target) return; // no target selected — block want changes
-    const max = target.resources[res]||0;
+    if (!target) return;
+    const max = blind ? 99 : (target.resources[res]||0);
     ptWant[res] = Math.max(0, Math.min(max, (ptWant[res]||0) + delta));
   }
   renderPTFull();
@@ -2077,13 +2080,15 @@ function showTradeAcceptModal(targetId, offer, want, fromId) {
   const fromIdx = fromId !== undefined ? fromId : state.currentPlayerIndex;
   const from = state.players[fromIdx];
   const to   = state.players[targetId];
+  const blind = state.hiddenResources ?? true;
 
   const fmtRes = obj => Object.entries(obj||{})
     .filter(([,a])=>+a>0)
     .map(([r,a])=>`<span class="trade-res-chip">${a}× ${resEmoji(r)||r} <small>${resName(r)}</small></span>`)
     .join('') || '—';
 
-  // Validate target has what is being requested
+  // In blind mode: recipient checks only their own resources (what they must give = want)
+  // In normal mode: also check from's resources client-side
   const toMissing = Object.entries(want)
     .filter(([r,a])=>(to.resources[r]||0) < parseInt(a))
     .map(([r,a])=>`${resEmoji(r)} ${r}: ha ${to.resources[r]||0}, serve ${a}`);

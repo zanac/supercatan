@@ -1767,21 +1767,26 @@ document.getElementById('mob-btn-player').addEventListener('click',()=>{
 window.selPTTarget=id=>{ptTarget=id; ptWant={wood:0,brick:0,sheep:0,wheat:0,ore:0}; renderPTModal();};
 window.chMobPT=(side,res,d)=>{
   const me=state.players[MY_PLAYER_ID];
+  const blind = state.hiddenResources ?? true;
   if(side==='offer') ptOffer[res]=Math.max(0,Math.min(me.resources[res]||0,(ptOffer[res]||0)+d));
   else { const tgt=ptTarget!==null?state.players[ptTarget]:null;
-    if(!tgt) return; // no target selected
-    ptWant[res]=Math.max(0,Math.min(tgt.resources[res]||0,(ptWant[res]||0)+d)); }
+    if(!tgt) return;
+    const max = blind ? 99 : (tgt.resources[res]||0);
+    ptWant[res]=Math.max(0,Math.min(max,(ptWant[res]||0)+d)); }
   renderPTModal();
 };
 function renderPTModal(){
   const me=state.players[MY_PLAYER_ID], others=state.players.filter(p=>p.id!==MY_PLAYER_ID);
   const tgt=ptTarget!==null?state.players[ptTarget]:null;
+  const blind = state.hiddenResources ?? true;
   document.getElementById('mob-trade-targets').innerHTML=others.map(p=>
     `<button class="mob-target-btn ${ptTarget===p.id?'active':''}" style="--pcol:${p.color}"
              onclick="selPTTarget(${p.id})"><span style="color:${p.color}">●</span> ${escHtml(p.name)}</button>`).join('');
   document.getElementById('mob-pt-rows').innerHTML=RES_LIST.map(r=>{
     const ov=ptOffer[r]||0, wv=ptWant[r]||0;
-    const mh=me.resources[r]||0, th=tgt?(tgt.resources[r]||0):'—';
+    const mh=me.resources[r]||0;
+    const th=tgt ? (blind ? '?' : (tgt.resources[r]||0)) : '—';
+    const wantMax=tgt ? (blind ? 99 : (tgt.resources[r]||0)) : 0;
     return `<div class="mob-pt-row">
       <span class="mob-pt-emoji">${resEmoji(r)}</span>
       <div class="mob-pt-name">${resName(r)}</div>
@@ -1798,7 +1803,7 @@ function renderPTModal(){
         <div class="mob-stepper">
           <button onclick="chMobPT('want','${r}',-1)" ${!tgt?'disabled':''}>−</button>
           <span style="${wv>0?'color:#f0c040;font-weight:bold':''}">${wv}</span>
-          <button onclick="chMobPT('want','${r}',1)" ${!tgt||(tgt&&wv>=(tgt.resources[r]||0))?'disabled':''}>+</button>
+          <button onclick="chMobPT('want','${r}',1)" ${!tgt||wv>=wantMax?'disabled':''}>+</button>
         </div>
       </div>
     </div>`;

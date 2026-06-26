@@ -311,8 +311,18 @@ function handle(msg, ws) {
       if (msg.accepted) {
         // Destinatario accetta — esegui lo scambio
         pushUndo(room);
-        room.game.tradeOffer(msg);
+        const tradeResult = room.game.tradeOffer(msg);
         room.pendingTrade = null;
+        if (tradeResult?.error) {
+          // Scambio fallito (risorse insufficienti) — notifica tutti e manda errore al proponente
+          broadcastState(pin);
+          wss.clients.forEach(c => {
+            if (c.readyState === WebSocket.OPEN && c.pin === pin && c.playerId === msg.fromId) {
+              c.send(JSON.stringify({ type: 'ACTION_ERROR', error: tradeResult.error, context: 'trade' }));
+            }
+          });
+          break;
+        }
       } else if (msg.rejected) {
         // Destinatario rifiuta — annulla proposta
         room.pendingTrade = null;
