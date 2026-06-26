@@ -1,8 +1,8 @@
-# 🎲 Settlers of Catan
+# 🎲 SuperCatan
 
 A full web-based multiplayer implementation of Settlers of Catan, playable from any browser — no app required.
 
-Two skins are included out of the box: **Classic Catan** (standard hex graphics) and **Pulp Fiction (IT)** (Italian-language skin inspired by the Pulp Fiction universe, with custom resource names, card art and VP card images).
+Three skins are included out of the box: **Classic Catan** (standard hex graphics), **Pulp Fiction** (Italian-language skin inspired by the Pulp Fiction universe) and **Pulp Fiction** (English-language version). Skins are automatically filtered by the selected language in the setup screen.
 
 ![SuperCatan — Desktop](screenshot.png)
 
@@ -16,10 +16,13 @@ Two skins are included out of the box: **Classic Catan** (standard hex graphics)
 - **💻 Web player** — join via link on PC or tablet, with full turn management
 - **📺 Spectator mode** — watch the game on any device via `/spectator?pin=XXXXX`
 - **📱 Phone-only mode** — run the entire game without a desktop; all players join via QR
-- **Skin system** — fully customizable visuals: hex tiles, buildings, roads, robber, resource names, dev card names and images, VP card names and images
+- **▶ Play button** — in phone-host mode, open any player's view directly inside the PWA
+- **Waiting screen** — web players who open their link before the game starts see a waiting screen and auto-join when the game begins
+- **Skin system** — fully customizable visuals: hex tiles, buildings, roads, robber, resource names, dev card names and images, VP card names and images; skins support a `lang` field to appear only for specific languages
+- **Hidden resources** — optional rule that hides other players' resource counts; trades become blind (proposer can't see what the target has); only deltas are shown to everyone
 - **Undo** — available during setup and main game phases
-- **Languages** — EN, IT, FR, DE (auto-detected from browser)
-- **PWA** — installable on mobile as a full-screen app
+- **Languages** — EN, IT, FR, DE (auto-detected from browser, persisted via localStorage)
+- **PWA** — installable on mobile as a full-screen app with install prompt on first visit
 
 ---
 
@@ -38,7 +41,7 @@ Two skins are included out of the box: **Classic Catan** (standard hex graphics)
 1. Open the game on a phone
 2. Configure players and rules as usual
 3. Tap **📱 Play from phone** — a compact host screen appears
-4. Each player taps **QR** to scan their personal link, or **🔗** to open it directly
+4. Each player taps **QR** to scan their personal link, **🔗** to share it, or **▶** to open it directly inside the PWA
 5. Everyone plays from their own phone — no desktop board needed
 
 ### Rejoin after reload
@@ -56,8 +59,9 @@ If the admin closes or refreshes the page, navigate to `/?pin=XXXXX` to rejoin. 
 | Random numbers | Off | Number tokens are placed randomly instead of the standard spiral |
 | Desert center | ✅ On | Desert is always placed at the center hex |
 | Quick Game | Off | Win at 7 points instead of 10 |
-| Unlimited dev cards | ✅ On | Players can buy multiple dev cards per turn (house rule); turn off for standard Catan rules (1 per turn) |
-| Instant Cards | Off | Newly bought dev cards can be played immediately in the same turn, without waiting for the next |
+| Unlimited dev cards | ✅ On | Players can buy multiple dev cards per turn (house rule); turn off for standard rules (1 per turn) |
+| Instant Cards | Off | Newly bought dev cards can be played immediately in the same turn |
+| Hidden Resources | ✅ On | Each player only sees their own resources; others see only gain/loss deltas. Trades become blind — the proposer cannot see what the target holds. The server validates all trades server-side. |
 
 ---
 
@@ -77,9 +81,29 @@ Stealing a resource after moving the robber (via dice 7 or Knight card) triggers
 
 ---
 
+## Notifications
+
+All players receive real-time toasts for:
+- 🎲 Dice rolls with resource gains
+- ⭐ Victory point gains
+- 🛤 Longest Road acquired **or lost**
+- ⚔️ Largest Army acquired **or lost**
+- 🃏 Dev card drawn (only the drawing player sees the card details)
+
+---
+
+## Mobile features
+
+- **👥 Players summary** — tap the 👥 button (top-left, next to refresh) to see a popup with every player's points, badges, dev card count, knights played, and resources (own always visible; others only if Hidden Resources is off)
+- **Setup phase** — tap the settlement or road button first, then tap the board to place; the board expands automatically when a button is pressed
+- **Build mode banner** — shows placement hint while the board is expanded
+- **Waiting screen** — shown when joining before the game has started
+
+---
+
 ## Skin system
 
-Place skin folders inside `skins/` — each with a `skin.json` manifest. Skins are loaded automatically and appear in the setup screen.
+Place skin folders inside `skins/` — each with a `skin.json` manifest. Skins are loaded automatically and appear in the setup screen, filtered by the currently selected language.
 
 ### Folder structure
 
@@ -107,6 +131,7 @@ skins/
   "id": "myskin",
   "name": "My Skin",
   "version": "1.0",
+  "lang": "en",
   "preview": "preview.png",
   "provides": ["hex", "robber", "buildings", "roads"],
 
@@ -146,10 +171,17 @@ skins/
     "road_building":  "Road Building",
     "longest_road":   "Longest Road",
     "largest_army":   "Largest Army",
+    "longest_road_emoji": "🛤",
+    "largest_army_emoji": "⚔️",
     "devcard_knight_desc":  "Move the robber and steal a resource",
     "devcard_road_desc":    "Place 2 free roads",
     "devcard_mono_desc":    "Claim all of one resource from everyone",
     "devcard_yop_desc":     "Take any 2 resources from the bank",
+    "devname_knight":       "⚔️ Knight",
+    "devname_monopoly":     "👑 Monopoly",
+    "devname_yop":          "🌻 Year of Plenty",
+    "devname_road_build":   "🛤 Road Building",
+    "devname_vp":           "⭐ Victory Point",
     "banner_robber":        "Move the robber! Tap a hex.",
     "phase_place_sett":     "Place a settlement",
     "phase_place_road":     "Place a road",
@@ -160,30 +192,50 @@ skins/
   },
 
   "vp_cards": {
-    "chapel":     { "name": "⛪ Chapel",     "emoji": "⛪", "desc": "A place of worship",       "image": "vp/chapel.jpg" },
-    "library":    { "name": "📚 Library",    "emoji": "📚", "desc": "Knowledge is power",       "image": "vp/library.jpg" },
-    "market":     { "name": "🏪 Market",     "emoji": "🏪", "desc": "The heart of trade",       "image": "vp/market.jpg" },
-    "university": { "name": "🎓 University", "emoji": "🎓", "desc": "Brilliant minds prosper",  "image": "vp/university.jpg" },
-    "palace":     { "name": "🏰 Palace",     "emoji": "🏰", "desc": "Symbol of your power",     "image": "vp/palace.jpg" }
+    "chapel":     { "name": "⛪ Chapel",     "emoji": "⛪", "desc": "A place of worship",      "image": "vp/chapel.jpg" },
+    "library":    { "name": "📚 Library",    "emoji": "📚", "desc": "Knowledge is power",      "image": "vp/library.jpg" },
+    "market":     { "name": "🏪 Market",     "emoji": "🏪", "desc": "The heart of trade",      "image": "vp/market.jpg" },
+    "university": { "name": "🎓 University", "emoji": "🎓", "desc": "Brilliant minds prosper", "image": "vp/university.jpg" },
+    "palace":     { "name": "🏰 Palace",     "emoji": "🏰", "desc": "Symbol of your power",    "image": "vp/palace.jpg" }
   },
 
   "dev_cards": {
-    "knight":        { "image": "dev/knight.jpg" },
-    "monopoly":      { "image": "dev/monopoly.jpg" },
-    "year_of_plenty":{ "image": "dev/year_of_plenty.jpg" },
-    "road_building": { "image": "dev/road_building.jpg" }
+    "knight":         { "image": "dev/knight.jpg",         "desc": "Optional custom description" },
+    "monopoly":       { "image": "dev/monopoly.jpg",        "desc": "Optional custom description" },
+    "yearOfPlenty":   { "image": "dev/year_of_plenty.jpg",  "desc": "Optional custom description" },
+    "roadBuilding":   { "image": "dev/road_building.jpg",   "desc": "Optional custom description" }
   }
 }
 ```
 
+### Skin fields reference
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `id` | ✅ | Unique identifier, must match folder name |
+| `name` | ✅ | Display name shown in the skin selector |
+| `lang` | — | If set (`"en"`, `"it"`, `"fr"`, `"de"`), skin only appears when that language is selected. Omit for universal skins (shown for all languages) |
+| `version` | — | Informational version string |
+| `preview` | — | Path to thumbnail image (shown in selector) |
+| `provides` | — | Array of asset categories provided: `hex`, `robber`, `buildings`, `roads` |
+| `hex` | — | Per-resource hex image paths |
+| `robber` | — | Robber image path |
+| `buildings` | — | Settlement and city images per player color |
+| `roads` | — | Road images per player color |
+| `resource_names` | — | Override resource display names |
+| `resource_emojis` | — | Override resource emojis |
+| `labels` | — | Override any UI string (see reference above) |
+| `vp_cards` | — | Override VP card name, emoji, description and image |
+| `dev_cards` | — | Override dev card image and optional description |
+
 ### Skin override rules
 
-- All fields are **optional** — omit any section to fall back to the standard Classic behavior
-- `resource_names` and `resource_emojis` override only the keys you provide; missing keys fall back to the current language translation
-- `labels` keys override specific UI strings; any key not present falls back to the i18n translation
-- `vp_cards` defines name, emoji and optional description for each Victory Point subtype; `image` is optional (falls back to emoji)
-- `dev_cards` defines optional card images shown in the drawn-card popup (falls back to emoji)
-- Languages other than the skin's native language automatically fall back to i18n translations — skins do not need to be multilingual
+- All fields are **optional** — omit any section to fall back to Classic behavior
+- `resource_names` and `resource_emojis` override only the keys you provide
+- `labels` keys override specific UI strings; missing keys fall back to i18n translation
+- `vp_cards` supports optional `image` (falls back to emoji)
+- `dev_cards` supports optional `desc` (falls back to i18n description)
+- Skins without `lang` are **universal** and always visible regardless of selected language
 
 ---
 
