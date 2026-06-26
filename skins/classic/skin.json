@@ -49,27 +49,50 @@
     "chapel": {
       "name": "⛪ Chapel",
       "emoji": "⛪",
-      "desc": "A place of worship that brings prosperity to the village — ⭐ +1 Victory Point"
+      "desc": "A place of worship. +1 Victory Point.",
+      "image": "vp/chapel.jpg"
     },
     "library": {
       "name": "📚 Library",
       "emoji": "📚",
-      "desc": "Knowledge is power — ⭐ +1 Victory Point"
+      "desc": "Knowledge is power. +1 Victory Point.",
+      "image": "vp/library.jpg"
     },
     "market": {
       "name": "🏪 Market",
       "emoji": "🏪",
-      "desc": "The beating heart of the colony's trade — ⭐ +1 Victory Point"
+      "desc": "Trade flourishes under your domain. +1 Victory Point.",
+      "image": "vp/market.jpg"
     },
     "university": {
       "name": "🎓 University",
       "emoji": "🎓",
-      "desc": "Brilliant minds make the community flourish — ⭐ +1 Victory Point"
+      "desc": "Scholars illuminate the path to victory. +1 Victory Point.",
+      "image": "vp/university.jpg"
     },
     "palace": {
       "name": "🏰 Great Hall",
       "emoji": "🏰",
-      "desc": "A symbol of power and the greatness of your realm — ⭐ +1 Victory Point"
+      "desc": "The seat of your power and glory. +1 Victory Point.",
+      "image": "vp/palace.jpg"
+    }
+  },
+  "dev_cards": {
+    "knight": {
+      "image": "dev/knight.jpg",
+      "desc": "Move the robber and steal 1 resource card from an adjacent player."
+    },
+    "monopoly": {
+      "image": "dev/monopoly.jpg",
+      "desc": "Name 1 resource. All other players must give you all of their resource cards of that type."
+    },
+    "yearOfPlenty": {
+      "image": "dev/yearOfPlenty.jpg",
+      "desc": "Take any 2 resource cards from the bank. They can be of the same type or different."
+    },
+    "roadBuilding": {
+      "image": "dev/roadBuilding.jpg",
+      "desc": "Build 2 roads for free."
     }
   }
 }
